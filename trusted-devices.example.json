@@ -1,0 +1,9 @@
+{
+  "trusted": [
+    {
+      "mac": "aa-bb-cc-dd-ee-ff",
+      "name": "My Router",
+      "added": "2026-01-01"
+    }
+  ]
+}
