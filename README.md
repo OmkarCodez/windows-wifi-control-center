@@ -6,18 +6,21 @@ A macOS-style Control Center desktop widget for Windows 10/11, built entirely in
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-purple)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
+![Control Center Widget](Wifi%20controller.png)
+
 ## Features
 
 - **Wi-Fi Monitor** - SSID, channel, signal strength, speed, band, and security. Visual channel congestion map (channels 1-11) with color coding: green (free), orange (moderate), red (congested).
 - **Volume Control** - System volume slider synced via Windows Core Audio API. Includes mute toggle.
 - **Brightness Control** - Display brightness slider via WMI.
 - **Opacity Control** - Adjust widget transparency (20-100%).
-- **Media Controls** - Play/pause, previous, next track buttons.
+- **Media Controls** - Play/pause, previous, next track buttons with rounded pill-shaped buttons.
 - **Privacy Indicators** - Live microphone and camera status (green = active, red = off) via Windows registry.
-- **Speed Test** - Integrated Ookla Speedtest CLI with download, upload, ping, jitter, and server info.
-- **Network Devices** - Scans local network (192.168.0.x) for connected devices. Trust/untrust devices with right-click. Trusted devices shown in green, unknown in red.
+- **Speed Test** - Two-column dashboard layout with large download/upload numbers, colored arrow indicators, and ping/jitter stats. Powered by Ookla Speedtest CLI.
+- **Network Devices** - Scans local network for connected devices with colored dot status indicators. Trust/untrust devices with right-click. Scan button for quick network discovery.
 - **Resizable** - Drag from any edge or corner to resize. Drag the title bar to move.
 - **Expand/Collapse** - Green traffic-light button collapses the widget to a slim title bar.
+- **Rounded Cards** - Each section has rounded corner panels with polished dark theme styling.
 
 ## Requirements
 
@@ -64,16 +67,16 @@ On first run, the widget creates `trusted-devices.json` in the same directory as
 |------|-------|-----|
 | Subnet | Line 102 | Change `192.168.0` to your subnet |
 | Colors | Lines 138-148 | Modify the palette `$bg`, `$card`, `$txt`, etc. |
-| Refresh interval | Line 617 | Change `$tmr.Interval` (milliseconds) |
-| Default opacity | Line 398 | Change `$sOpa.Value` |
-| Window size | Line 169 | Change `$W` (width) |
+| Refresh interval | Timer section | Change `$tmr.Interval` (milliseconds) |
+| Default opacity | Opacity slider | Change `$sOpa.Value` |
+| Window size | Form section | Change `$W` (width) |
 | Speedtest path | Line 8 | Update `$speedtestExe` |
 
 ## Architecture
 
 Single-file PowerShell script with inline C# for:
 
-- **DarkForm** - Borderless WinForms form with WndProc override for resize from all edges
+- **DarkForm** - Borderless WinForms form with WndProc override for resize from all edges and corners
 - **WinAPI** - P/Invoke for media key simulation and rounded window regions
 - **AudioManager** - Windows Core Audio COM API for volume read/write/mute
 

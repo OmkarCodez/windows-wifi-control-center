@@ -26,7 +26,7 @@ public class DarkForm : Form {
     protected override void WndProc(ref Message m) {
         if (m.Msg==0x84) {
             base.WndProc(ref m);
-            Point c=PointToClient(Cursor.Position); int g=7;
+            Point c=PointToClient(Cursor.Position); int g=10;
             if (c.Y<g) {
                 if (c.X<g) m.Result=(IntPtr)13;
                 else if (c.X>=Width-g) m.Result=(IntPtr)14;
@@ -156,6 +156,8 @@ $fTB = New-Object System.Drawing.Font('Segoe UI',6.5,[System.Drawing.FontStyle]:
 $fIc = New-Object System.Drawing.Font('Segoe UI',9)
 $fMd = New-Object System.Drawing.Font('Segoe UI Symbol',12)
 $fDot= New-Object System.Drawing.Font('Segoe UI',11,[System.Drawing.FontStyle]::Bold)
+$fLg = New-Object System.Drawing.Font('Segoe UI',18,[System.Drawing.FontStyle]::Bold)
+$fArr = New-Object System.Drawing.Font('Segoe UI',14)
 
 $RI = [string][char]0x21BB
 $DOT = [string][char]0x25CF
@@ -178,7 +180,7 @@ $form.TopMost = $true
 $form.Opacity = 0.95
 $form.ShowInTaskbar = $true
 $form.StartPosition = 'Manual'
-$form.MinimumSize = New-Object System.Drawing.Size(300,520)
+$form.MinimumSize = New-Object System.Drawing.Size(300,550)
 $form.Location = New-Object System.Drawing.Point(([System.Windows.Forms.Screen]::PrimaryScreen.WorkingArea.Width - $W - 12),12)
 
 $script:drag = $false; $script:dPt = New-Object System.Drawing.Point(0,0)
@@ -188,6 +190,9 @@ $form.Add_MouseUp({ $script:drag=$false })
 $form.Add_Resize({
     if ($form.IsHandleCreated -and $form.WindowState -ne 'Minimized') {
         [void][WinAPI]::SetWindowRgn($form.Handle,[WinAPI]::CreateRoundRectRgn(0,0,$form.Width,$form.Height,18,18),$true)
+        foreach ($p in @($pW,$pS,$pM,$pSp,$pD)) {
+            if ($p.IsHandleCreated) { [void][WinAPI]::SetWindowRgn($p.Handle,[WinAPI]::CreateRoundRectRgn(0,0,($p.Width+1),($p.Height+1),12,12),$true) }
+        }
     }
 })
 
@@ -221,7 +226,7 @@ $btnExp.Add_Click({
         $form.Height = 24
         $script:expanded = $false
     } else {
-        $form.MinimumSize = New-Object System.Drawing.Size(300,520)
+        $form.MinimumSize = New-Object System.Drawing.Size(300,550)
         foreach ($c in @($pW,$pS,$pM,$pSp,$pD)) { $c.Visible = $true }
         $form.Height = $script:fullH
         $script:expanded = $true
@@ -263,6 +268,11 @@ $lblWTime.TextAlign = [System.Drawing.ContentAlignment]::TopRight
 $lblWTime.Location = New-Object System.Drawing.Point(130,10); $lblWTime.Size = New-Object System.Drawing.Size(120,11)
 $lblWTime.Anchor = $aTR
 $pW.Controls.Add($lblWTime)
+
+$lblWStat = New-Object System.Windows.Forms.Label
+$lblWStat.Text = 'Connected'; $lblWStat.Font = $fT; $lblWStat.ForeColor = $grn
+$lblWStat.Location = New-Object System.Drawing.Point(84,10); $lblWStat.Size = New-Object System.Drawing.Size(48,10)
+$pW.Controls.Add($lblWStat)
 
 $wF = @('SSID','Channel','Signal','Speed','Band','Security')
 $lblW = @{}; $ry = 26
@@ -320,6 +330,7 @@ function Update-Wifi {
         else { $script:lblCh[$i].Font = $fT; $script:lblCh[$i].ForeColor = $bg }
     }
     $lblWTime.Text = Get-Date -Format 'HH:mm:ss'
+    if ($w['SSID']) { $lblWStat.Text = 'Connected'; $lblWStat.ForeColor = $grn } else { $lblWStat.Text = 'No Wi-Fi'; $lblWStat.ForeColor = $red }
     $bWR.ForeColor = $blue
 }
 $bWR.Add_Click({ Update-Wifi })
@@ -333,20 +344,20 @@ $form.Controls.Add($pS)
 
 # Volume (synced with system via Core Audio API)
 $l = New-Object System.Windows.Forms.Label
-$l.Text = 'Vol'; $l.Font = $fC; $l.ForeColor = $dim
-$l.Location = New-Object System.Drawing.Point(12,6); $l.Size = New-Object System.Drawing.Size(22,12)
+$l.Text = 'Volume'; $l.Font = $fC; $l.ForeColor = $dim
+$l.Location = New-Object System.Drawing.Point(12,6); $l.Size = New-Object System.Drawing.Size(48,12)
 $pS.Controls.Add($l)
 
 $bMute = New-Object System.Windows.Forms.Button
 $bMute.Text = 'M'; $bMute.Font = $fC; $bMute.FlatStyle = 'Flat'; $bMute.FlatAppearance.BorderSize = 0
 $bMute.BackColor = $cardL; $bMute.ForeColor = $dim; $bMute.Cursor = 'Hand'
-$bMute.Location = New-Object System.Drawing.Point(36,3); $bMute.Size = New-Object System.Drawing.Size(20,16)
+$bMute.Location = New-Object System.Drawing.Point(62,3); $bMute.Size = New-Object System.Drawing.Size(20,16)
 $bMute.Add_Click({ [AudioManager]::ToggleMute() })
 $pS.Controls.Add($bMute)
 
 $initVol = [AudioManager]::GetVolume(); if ($initVol -lt 0) { $initVol = 50 }
 $sVol = New-Object System.Windows.Forms.TrackBar
-$sVol.Location = New-Object System.Drawing.Point(58,0); $sVol.Size = New-Object System.Drawing.Size(($CW-100),25)
+$sVol.Location = New-Object System.Drawing.Point(84,0); $sVol.Size = New-Object System.Drawing.Size(($CW-126),25)
 $sVol.Minimum = 0; $sVol.Maximum = 100; $sVol.Value = $initVol; $sVol.TickStyle = 'None'; $sVol.BackColor = $card
 $sVol.Anchor = $aLTR
 $pS.Controls.Add($sVol)
@@ -367,12 +378,12 @@ $pS.Controls.Add($sp1)
 
 # Brightness
 $l = New-Object System.Windows.Forms.Label
-$l.Text = 'Disp'; $l.Font = $fC; $l.ForeColor = $dim
-$l.Location = New-Object System.Drawing.Point(12,34); $l.Size = New-Object System.Drawing.Size(26,12)
+$l.Text = 'Display'; $l.Font = $fC; $l.ForeColor = $dim
+$l.Location = New-Object System.Drawing.Point(12,34); $l.Size = New-Object System.Drawing.Size(48,12)
 $pS.Controls.Add($l)
 $cB = Get-Brightness; if ($cB -lt 0) { $cB = 50 }
 $sBri = New-Object System.Windows.Forms.TrackBar
-$sBri.Location = New-Object System.Drawing.Point(58,30); $sBri.Size = New-Object System.Drawing.Size(($CW-100),25)
+$sBri.Location = New-Object System.Drawing.Point(84,30); $sBri.Size = New-Object System.Drawing.Size(($CW-126),25)
 $sBri.Minimum = 0; $sBri.Maximum = 100; $sBri.Value = $cB; $sBri.TickStyle = 'None'; $sBri.BackColor = $card
 $sBri.Anchor = $aLTR
 $pS.Controls.Add($sBri)
@@ -395,7 +406,7 @@ $l.Text = 'Opacity'; $l.Font = $fC; $l.ForeColor = $dim
 $l.Location = New-Object System.Drawing.Point(12,66); $l.Size = New-Object System.Drawing.Size(40,12)
 $pS.Controls.Add($l)
 $sOpa = New-Object System.Windows.Forms.TrackBar
-$sOpa.Location = New-Object System.Drawing.Point(58,62); $sOpa.Size = New-Object System.Drawing.Size(($CW-100),25)
+$sOpa.Location = New-Object System.Drawing.Point(84,62); $sOpa.Size = New-Object System.Drawing.Size(($CW-126),25)
 $sOpa.Minimum = 20; $sOpa.Maximum = 100; $sOpa.Value = 95; $sOpa.TickStyle = 'None'; $sOpa.BackColor = $card
 $sOpa.Anchor = $aLTR
 $pS.Controls.Add($sOpa)
@@ -414,6 +425,7 @@ $pM.Location = New-Object System.Drawing.Point($M,$Y); $pM.Size = New-Object Sys
 $pM.Anchor = $aLTR
 $form.Controls.Add($pM)
 
+$script:mediaBtns = New-Object System.Collections.ArrayList
 foreach ($mInfo in @(
     @{ T=[string][char]0x23EE; X=12; BG=$cardL; VK=0xB1 },
     @{ T=[string][char]0x23EF; X=52; BG=$blue;  VK=0xB3 },
@@ -426,6 +438,7 @@ foreach ($mInfo in @(
     $vk = $mInfo.VK
     $mb.Add_Click({ [WinAPI]::Key($vk) }.GetNewClosure())
     $pM.Controls.Add($mb)
+    [void]$script:mediaBtns.Add($mb)
 }
 
 $lMicDot = New-Object System.Windows.Forms.Label
@@ -447,9 +460,9 @@ $lCam.Location = New-Object System.Drawing.Point(220,10); $lCam.Size = New-Objec
 $pM.Controls.Add($lCam)
 $Y += (34 + $G)
 
-# ==== SPEED TEST CARD (moved above Devices) ====
+# ==== SPEED TEST CARD (two-column layout) ====
 $pSp = New-Object System.Windows.Forms.Panel
-$pSp.Location = New-Object System.Drawing.Point($M,$Y); $pSp.Size = New-Object System.Drawing.Size($CW,108); $pSp.BackColor = $card
+$pSp.Location = New-Object System.Drawing.Point($M,$Y); $pSp.Size = New-Object System.Drawing.Size($CW,134); $pSp.BackColor = $card
 $pSp.Anchor = $aLTR
 $form.Controls.Add($pSp)
 
@@ -465,23 +478,82 @@ $bSpRun.BackColor = $org; $bSpRun.Cursor = 'Hand'
 $bSpRun.Location = New-Object System.Drawing.Point(90,5); $bSpRun.Size = New-Object System.Drawing.Size(26,18)
 $pSp.Controls.Add($bSpRun)
 
-$spF = @('Download','Upload','Ping','Jitter','Server'); $lblSp = @{}; $sy = 26
-foreach ($f in $spF) {
-    $lk = New-Object System.Windows.Forms.Label
-    $lk.Text = $f; $lk.Font = $fC; $lk.ForeColor = $dim
-    $lk.Location = New-Object System.Drawing.Point(12,$sy); $lk.Size = New-Object System.Drawing.Size(52,12)
-    $pSp.Controls.Add($lk)
-    $lv = New-Object System.Windows.Forms.Label
-    $lv.Text = '--'; $lv.Font = $fB; $lv.ForeColor = $txt
-    $lv.Location = New-Object System.Drawing.Point(68,$sy); $lv.Size = New-Object System.Drawing.Size(240,12)
-    $lv.Anchor = $aLTR
-    $pSp.Controls.Add($lv)
-    $lblSp[$f] = $lv
-    $sy += 14
-}
+$spSep0 = New-Object System.Windows.Forms.Panel
+$spSep0.Location = New-Object System.Drawing.Point(12,25); $spSep0.Size = New-Object System.Drawing.Size(($CW-24),1); $spSep0.BackColor = $sep
+$spSep0.Anchor = $aLTR
+$pSp.Controls.Add($spSep0)
+
+$half = [int]($CW / 2)
+
+$lDlArr = New-Object System.Windows.Forms.Label
+$lDlArr.Text = [string][char]0x2193; $lDlArr.Font = $fArr; $lDlArr.ForeColor = $grn
+$lDlArr.Location = New-Object System.Drawing.Point(14,32); $lDlArr.Size = New-Object System.Drawing.Size(20,22)
+$pSp.Controls.Add($lDlArr)
+
+$lblSpDl = New-Object System.Windows.Forms.Label
+$lblSpDl.Text = '--'; $lblSpDl.Font = $fLg; $lblSpDl.ForeColor = $txt
+$lblSpDl.Location = New-Object System.Drawing.Point(36,28); $lblSpDl.Size = New-Object System.Drawing.Size(110,26)
+$pSp.Controls.Add($lblSpDl)
+
+$lDlU = New-Object System.Windows.Forms.Label
+$lDlU.Text = 'Mbps'; $lDlU.Font = $fC; $lDlU.ForeColor = $dim
+$lDlU.Location = New-Object System.Drawing.Point(36,52); $lDlU.Size = New-Object System.Drawing.Size(40,12)
+$pSp.Controls.Add($lDlU)
+
+$lUlArr = New-Object System.Windows.Forms.Label
+$lUlArr.Text = [string][char]0x2191; $lUlArr.Font = $fArr; $lUlArr.ForeColor = $blue
+$lUlArr.Location = New-Object System.Drawing.Point($half,32); $lUlArr.Size = New-Object System.Drawing.Size(20,22)
+$pSp.Controls.Add($lUlArr)
+
+$lblSpUl = New-Object System.Windows.Forms.Label
+$lblSpUl.Text = '--'; $lblSpUl.Font = $fLg; $lblSpUl.ForeColor = $txt
+$lblSpUl.Location = New-Object System.Drawing.Point(($half+22),28); $lblSpUl.Size = New-Object System.Drawing.Size(110,26)
+$pSp.Controls.Add($lblSpUl)
+
+$lUlU = New-Object System.Windows.Forms.Label
+$lUlU.Text = 'Mbps'; $lUlU.Font = $fC; $lUlU.ForeColor = $dim
+$lUlU.Location = New-Object System.Drawing.Point(($half+22),52); $lUlU.Size = New-Object System.Drawing.Size(40,12)
+$pSp.Controls.Add($lUlU)
+
+$spSep1 = New-Object System.Windows.Forms.Panel
+$spSep1.Location = New-Object System.Drawing.Point(12,67); $spSep1.Size = New-Object System.Drawing.Size(($CW-24),1); $spSep1.BackColor = $sep
+$spSep1.Anchor = $aLTR
+$pSp.Controls.Add($spSep1)
+
+$lPnL = New-Object System.Windows.Forms.Label
+$lPnL.Text = 'Ping'; $lPnL.Font = $fC; $lPnL.ForeColor = $dim
+$lPnL.Location = New-Object System.Drawing.Point(14,72); $lPnL.Size = New-Object System.Drawing.Size(30,12)
+$pSp.Controls.Add($lPnL)
+
+$lblSpPn = New-Object System.Windows.Forms.Label
+$lblSpPn.Text = '--'; $lblSpPn.Font = $fS; $lblSpPn.ForeColor = $txt
+$lblSpPn.Location = New-Object System.Drawing.Point(14,84); $lblSpPn.Size = New-Object System.Drawing.Size(100,16)
+$pSp.Controls.Add($lblSpPn)
+
+$lJtL = New-Object System.Windows.Forms.Label
+$lJtL.Text = 'Jitter'; $lJtL.Font = $fC; $lJtL.ForeColor = $dim
+$lJtL.Location = New-Object System.Drawing.Point($half,72); $lJtL.Size = New-Object System.Drawing.Size(34,12)
+$pSp.Controls.Add($lJtL)
+
+$lblSpJt = New-Object System.Windows.Forms.Label
+$lblSpJt.Text = '--'; $lblSpJt.Font = $fS; $lblSpJt.ForeColor = $txt
+$lblSpJt.Location = New-Object System.Drawing.Point($half,84); $lblSpJt.Size = New-Object System.Drawing.Size(100,16)
+$pSp.Controls.Add($lblSpJt)
+
+$spSep2 = New-Object System.Windows.Forms.Panel
+$spSep2.Location = New-Object System.Drawing.Point(12,102); $spSep2.Size = New-Object System.Drawing.Size(($CW-24),1); $spSep2.BackColor = $sep
+$spSep2.Anchor = $aLTR
+$pSp.Controls.Add($spSep2)
+
+$lblSpSrv = New-Object System.Windows.Forms.Label
+$lblSpSrv.Text = '--'; $lblSpSrv.Font = $fC; $lblSpSrv.ForeColor = $dim
+$lblSpSrv.Location = New-Object System.Drawing.Point(14,106); $lblSpSrv.Size = New-Object System.Drawing.Size(290,12)
+$lblSpSrv.Anchor = $aLTR
+$pSp.Controls.Add($lblSpSrv)
+
 $lSpM = New-Object System.Windows.Forms.Label
 $lSpM.Text = ''; $lSpM.Font = $fC; $lSpM.ForeColor = $dim
-$lSpM.Location = New-Object System.Drawing.Point(12,$sy); $lSpM.Size = New-Object System.Drawing.Size(290,12)
+$lSpM.Location = New-Object System.Drawing.Point(14,120); $lSpM.Size = New-Object System.Drawing.Size(290,12)
 $pSp.Controls.Add($lSpM)
 
 $script:spRunning = $false
@@ -501,16 +573,18 @@ $bSpRun.Add_Click({
         $ul = [math]::Round($r.upload.bandwidth * 8 / 1000000,1)
         $pi = [math]::Round($r.ping.latency,1)
         $ji = [math]::Round($r.ping.jitter,2)
-        $lblSp['Download'].Text = "$dl Mbps"; $lblSp['Upload'].Text = "$ul Mbps"
-        $lblSp['Ping'].Text = "$pi ms"; $lblSp['Jitter'].Text = "$ji ms"
-        $lblSp['Server'].Text = "$($r.server.name), $($r.server.location)"; $lblSp['Server'].Font = $fC
-        if ($dl -ge 45) { $lblSp['Download'].ForeColor = $grn } elseif ($dl -ge 25) { $lblSp['Download'].ForeColor = $org } else { $lblSp['Download'].ForeColor = $red }
-        if ($pi -le 10) { $lblSp['Ping'].ForeColor = $grn } elseif ($pi -le 30) { $lblSp['Ping'].ForeColor = $org } else { $lblSp['Ping'].ForeColor = $red }
+        $lblSpDl.Text = [string]$dl
+        $lblSpUl.Text = [string]$ul
+        $lblSpPn.Text = "$pi ms"
+        $lblSpJt.Text = "$ji ms"
+        $lblSpSrv.Text = "$($r.server.name), $($r.server.location)"
+        if ($dl -ge 45) { $lblSpDl.ForeColor = $grn } elseif ($dl -ge 25) { $lblSpDl.ForeColor = $org } else { $lblSpDl.ForeColor = $red }
+        if ($pi -le 10) { $lblSpPn.ForeColor = $grn } elseif ($pi -le 30) { $lblSpPn.ForeColor = $org } else { $lblSpPn.ForeColor = $red }
         $lSpM.Text = "Done $(Get-Date -Format 'HH:mm:ss')"; $lSpM.ForeColor = $grn
     } catch { $lSpM.Text = 'Error'; $lSpM.ForeColor = $red }
     $script:spRunning = $false; $bSpRun.Text = [string][char]0x25B6
 })
-$Y += (108 + $G)
+$Y += (134 + $G)
 
 # ==== DEVICES CARD (moved to bottom, stretches on resize) ====
 $pD = New-Object System.Windows.Forms.Panel
@@ -531,16 +605,16 @@ $lDC.Anchor = $aTR
 $pD.Controls.Add($lDC)
 
 $bDR = New-Object System.Windows.Forms.Label
-$bDR.Text = $RI; $bDR.Font = $fIc; $bDR.ForeColor = $blue
+$bDR.Text = "$RI Scan"; $bDR.Font = $fC; $bDR.ForeColor = $blue
 $bDR.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $bDR.BackColor = $cardL; $bDR.Cursor = 'Hand'
-$bDR.Location = New-Object System.Drawing.Point(70,5); $bDR.Size = New-Object System.Drawing.Size(26,18)
+$bDR.Location = New-Object System.Drawing.Point(70,5); $bDR.Size = New-Object System.Drawing.Size(50,18)
 $pD.Controls.Add($bDR)
 
 $lsD = New-Object System.Windows.Forms.ListView
 $lsD.Location = New-Object System.Drawing.Point(12,26); $lsD.Size = New-Object System.Drawing.Size(($CW-24),78)
 $lsD.View = 'Details'; $lsD.FullRowSelect = $true; $lsD.BackColor = $card; $lsD.ForeColor = $txt; $lsD.Font = $fC
-$lsD.GridLines = $false; $lsD.BorderStyle = 'None'; $lsD.HeaderStyle = 'Nonclickable'
+$lsD.GridLines = $false; $lsD.BorderStyle = 'None'; $lsD.HeaderStyle = 'Nonclickable'; $lsD.Scrollable = $false
 $lsD.Anchor = $aLTRB
 [void]$lsD.Columns.Add('',22); [void]$lsD.Columns.Add('IP',78); [void]$lsD.Columns.Add('MAC',108); [void]$lsD.Columns.Add('Name',100)
 $pD.Controls.Add($lsD)
@@ -590,8 +664,8 @@ $bDR.Add_Click({
         $nm = if ($info) { [string]$info.name } else { '?' }
         if (-not $ok) { $unk++ }
         $item = New-Object System.Windows.Forms.ListViewItem
-        if ($ok) { $item.Text = [string][char]0x2713; $item.ForeColor = $grn }
-        else { $item.Text = '!'; $item.ForeColor = $red }
+        if ($ok) { $item.Text = $DOT; $item.ForeColor = $grn }
+        else { $item.Text = $DOT; $item.ForeColor = $red }
         $item.BackColor = $card
         [void]$item.SubItems.Add($dIp); [void]$item.SubItems.Add($dMac); [void]$item.SubItems.Add($nm)
         [void]$lsD.Items.Add($item)
@@ -610,6 +684,15 @@ $form.Add_Shown({
     [void][WinAPI]::SetWindowRgn($btnClose.Handle,[WinAPI]::CreateRoundRectRgn(0,0,13,13,12,12),$true)
     [void][WinAPI]::SetWindowRgn($btnMin.Handle,[WinAPI]::CreateRoundRectRgn(0,0,13,13,12,12),$true)
     [void][WinAPI]::SetWindowRgn($btnExp.Handle,[WinAPI]::CreateRoundRectRgn(0,0,13,13,12,12),$true)
+    [void][WinAPI]::SetWindowRgn($bWR.Handle,[WinAPI]::CreateRoundRectRgn(0,0,27,19,8,8),$true)
+    [void][WinAPI]::SetWindowRgn($bSpRun.Handle,[WinAPI]::CreateRoundRectRgn(0,0,27,19,8,8),$true)
+    [void][WinAPI]::SetWindowRgn($bDR.Handle,[WinAPI]::CreateRoundRectRgn(0,0,51,19,8,8),$true)
+    foreach ($mb in $script:mediaBtns) {
+        [void][WinAPI]::SetWindowRgn($mb.Handle,[WinAPI]::CreateRoundRectRgn(0,0,37,26,20,20),$true)
+    }
+    foreach ($p in @($pW,$pS,$pM,$pSp,$pD)) {
+        [void][WinAPI]::SetWindowRgn($p.Handle,[WinAPI]::CreateRoundRectRgn(0,0,($p.Width+1),($p.Height+1),12,12),$true)
+    }
 })
 
 # ==== TIMER (mic/cam, volume sync, brightness sync, 5s) ====
