@@ -6,6 +6,8 @@ A macOS-style Control Center desktop widget for Windows 10/11, built entirely in
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-purple)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
+![Control Center Widget](Wifi%20controller.png)
+
 ## Features
 
 - **Volume Control** — System volume slider via Windows Core Audio COM API. Mute toggle.
