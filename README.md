@@ -6,81 +6,101 @@ A macOS-style Control Center desktop widget for Windows 10/11, built entirely in
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-purple)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-![Control Center Widget](Wifi%20controller.png)
-
 ## Features
 
-- **Wi-Fi Monitor** - SSID, channel, signal strength, speed, band, and security. Visual channel congestion map (channels 1-11) with color coding: green (free), orange (moderate), red (congested).
-- **Volume Control** - System volume slider synced via Windows Core Audio API. Includes mute toggle.
-- **Brightness Control** - Display brightness slider via WMI.
-- **Opacity Control** - Adjust widget transparency (20-100%).
-- **Media Controls** - Play/pause, previous, next track buttons with rounded pill-shaped buttons.
-- **Privacy Indicators** - Live microphone and camera status (green = active, red = off) via Windows registry.
-- **Speed Test** - Two-column dashboard layout with large download/upload numbers, colored arrow indicators, and ping/jitter stats. Powered by Ookla Speedtest CLI.
-- **Network Devices** - Scans local network for connected devices with colored dot status indicators. Trust/untrust devices with right-click. Scan button for quick network discovery.
-- **Resizable** - Drag from any edge or corner to resize. Drag the title bar to move.
-- **Expand/Collapse** - Green traffic-light button collapses the widget to a slim title bar.
-- **Rounded Cards** - Each section has rounded corner panels with polished dark theme styling.
+- **Volume Control** — System volume slider via Windows Core Audio COM API. Mute toggle.
+- **Brightness Control** — Display brightness slider via WMI.
+- **Opacity Control** — Widget transparency (20-100%).
+- **Wi-Fi Monitor** — SSID, channel, signal, speed, band, security. Channel congestion heatmap (1-11): green = free, orange = moderate, red = congested.
+- **Media Controls** — Play/pause, previous, next track via media key simulation.
+- **Privacy Indicators** — Live microphone and camera status (green = active, red = off).
+- **Speed Test** — Download/upload speed, ping, jitter. Non-blocking via background process polling.
+- **Network Devices** — ARP-based device scanner with trust/untrust. Non-blocking via PowerShell Runspace.
+- **Resizable** — Drag from any edge or corner including bottom edge.
+- **Expand/Collapse** — Green dot collapses to slim title bar.
+- **Dark Theme** — macOS-inspired dark UI with flat layout, no wrapper panels.
 
 ## Requirements
 
 - Windows 10 or 11
-- PowerShell 5.1 (pre-installed on Windows 10+)
-- [Ookla Speedtest CLI](https://www.speedtest.net/apps/cli) (optional, for speed test feature)
+- PowerShell 5.1 (pre-installed)
+- [Ookla Speedtest CLI](https://www.speedtest.net/apps/cli) (optional, for speed test)
 
 ## Installation
 
 ### Run as Script
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File wifi-monitor.ps1
+powershell -ExecutionPolicy Bypass -File wifi-only.ps1
 ```
 
 ### Compile to EXE
 
-Install [PS2EXE](https://github.com/MScholtes/PS2EXE) and compile:
-
 ```powershell
 Install-Module ps2exe -Scope CurrentUser
-Invoke-PS2EXE -InputFile wifi-monitor.ps1 -OutputFile ControlCenter.exe -NoConsole -Title 'Control Center'
+Invoke-PS2EXE -InputFile wifi-only.ps1 -OutputFile ControlCenter.exe -NoConsole -IconFile control-center.ico
 ```
 
-Then double-click `ControlCenter.exe` to run.
-
 ### Speed Test Setup
-
-Install via winget:
 
 ```powershell
 winget install Ookla.Speedtest.CLI
 ```
 
-The widget looks for speedtest.exe in the default winget install path. If installed elsewhere, update the `$speedtestExe` path at the top of the script.
+The widget looks for `speedtest.exe` in the default winget install path. Update `$speedtestExe` at the top of the script if installed elsewhere.
+
+## Enable on Startup (Auto-launch on Boot)
+
+To have the widget launch automatically when Windows starts:
+
+### Method 1: Startup Folder (Recommended)
+
+1. Press `Win + R`, type `shell:startup`, press Enter
+2. Right-click inside the folder → **New** → **Shortcut**
+3. Browse to your `ControlCenter.exe` (or `wifi-only.ps1`)
+4. Name it **Control Center**, click Finish
+
+### Method 2: Task Scheduler (More Control)
+
+1. Open **Task Scheduler** (`taskschd.msc`)
+2. Click **Create Basic Task**
+3. Name: `Control Center Widget`, trigger: **When I log on**
+4. Action: **Start a program**, browse to `ControlCenter.exe`
+5. Check **Open the Properties dialog** → set **Run only when user is logged on**
+6. Optional: add a 5-second delay in Triggers → Edit → **Delay task for 5 seconds**
+
+### Method 3: Registry
+
+```powershell
+$exePath = "C:\path\to\ControlCenter.exe"
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "ControlCenter" -Value $exePath
+```
+
+To remove: `Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "ControlCenter"`
 
 ## Trusted Devices
 
-On first run, the widget creates `trusted-devices.json` in the same directory as the script/exe. Right-click any device in the Devices list to trust or untrust it. See `trusted-devices.example.json` for the format.
+On first run, the widget creates `trusted-devices.json` in the script directory. Right-click any device in the Devices list to trust/untrust. See `trusted-devices.example.json` for the format.
 
 ## Customization
 
-| What | Where | How |
-|------|-------|-----|
-| Subnet | Line 102 | Change `192.168.0` to your subnet |
-| Colors | Lines 138-148 | Modify the palette `$bg`, `$card`, `$txt`, etc. |
-| Refresh interval | Timer section | Change `$tmr.Interval` (milliseconds) |
-| Default opacity | Opacity slider | Change `$sOpa.Value` |
-| Window size | Form section | Change `$W` (width) |
-| Speedtest path | Line 8 | Update `$speedtestExe` |
+| Setting | Location | Notes |
+|---------|----------|-------|
+| Subnet | `$subnet` variable | Default `192.168.0` |
+| Colors | Palette section | `$bg`, `$card`, `$txt`, `$blue`, etc. |
+| Refresh interval | `$tmr.Interval` | Milliseconds (default 5000) |
+| Default opacity | Opacity slider init | Range 20-100 |
+| Window width | `$W` variable | Default 340px |
+| Speedtest path | `$speedtestExe` | Auto-detected from winget |
 
 ## Architecture
 
-Single-file PowerShell script with inline C# for:
+Single-file PowerShell script with inline C# types. See [WIDGET-ANATOMY.md](WIDGET-ANATOMY.md) for full architectural breakdown.
 
-- **DarkForm** - Borderless WinForms form with WndProc override for resize from all edges and corners
-- **WinAPI** - P/Invoke for media key simulation and rounded window regions
-- **AudioManager** - Windows Core Audio COM API for volume read/write/mute
-
-No external dependencies beyond PowerShell 5.1 and .NET Framework 4.x (both pre-installed on Windows 10).
+Key design decisions:
+- **C# SliderControl** — custom `Control` subclass avoids PowerShell 5.1 `.GetNewClosure()` scope isolation bug
+- **Non-blocking I/O** — Timer-polled background processes (speed test) and Runspaces (device scan)
+- **DarkForm WndProc** — edge hit-test before `base.WndProc` bypasses rounded region clipping
 
 ## License
 

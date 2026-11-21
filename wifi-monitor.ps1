@@ -26,7 +26,7 @@ public class DarkForm : Form {
     protected override void WndProc(ref Message m) {
         if (m.Msg==0x84) {
             base.WndProc(ref m);
-            Point c=PointToClient(Cursor.Position); int g=10;
+            Point c=PointToClient(Cursor.Position); int g=8;
             if (c.Y<g) {
                 if (c.X<g) m.Result=(IntPtr)13;
                 else if (c.X>=Width-g) m.Result=(IntPtr)14;
@@ -98,30 +98,25 @@ function Get-ChannelMap {
     return $chCount
 }
 function Get-NetworkDevices {
-    $jobs = @()
-    1..254 | ForEach-Object { $jobs += (New-Object System.Net.NetworkInformation.Ping).SendPingAsync("192.168.0.$_", 80) }
-    $dl = [DateTime]::Now.AddSeconds(5)
-    while ([DateTime]::Now -lt $dl) {
-        $done = $true; foreach ($j in $jobs) { if (-not $j.IsCompleted) { $done = $false; break } }
-        if ($done) { break }
-        [System.Windows.Forms.Application]::DoEvents(); Start-Sleep -Milliseconds 50
-    }
-    $devs = New-Object System.Collections.ArrayList
-    foreach ($line in (arp -a 2>&1)) {
-        if ($line -match '^\s*(192\.168\.0\.\d+)\s+([\da-f-]{17})\s+dynamic' -and $Matches[2] -ne 'ff-ff-ff-ff-ff-ff') {
-            [void]$devs.Add(@{ IP=$Matches[1]; MAC=$Matches[2] })
+    $subnet = '192.168.0'
+    $jobs = 1..254 | ForEach-Object { (New-Object System.Net.NetworkInformation.Ping).SendPingAsync("$subnet.$_",120) }
+    try { [System.Threading.Tasks.Task]::WaitAll($jobs) } catch {}
+    $arp = arp -a | Where-Object { $_ -match '^\s+(\d+\.\d+\.\d+\.\d+)\s+([\w-]+)' }
+    $devs = @()
+    foreach ($line in $arp) {
+        if ($line -match '^\s+(\d+\.\d+\.\d+\.\d+)\s+([\w-]+)') {
+            $ip = $Matches[1]; $mac = $Matches[2]
+            if ($mac -ne 'ff-ff-ff-ff-ff-ff' -and $ip.StartsWith($subnet)) {
+                $nm = '?'; try { $nm = [System.Net.Dns]::GetHostEntry($ip).HostName } catch {}
+                $devs += [PSCustomObject]@{IP=$ip;MAC=$mac;Name=$nm}
+            }
         }
     }
-    return ,$devs
+    return $devs
 }
-function Get-TrustedDevices { if (Test-Path $trustedFile) { try { return @((Get-Content $trustedFile -Raw | ConvertFrom-Json).trusted) } catch {} }; return @() }
-function Save-TrustedDevices($l) { @{ trusted = @($l) } | ConvertTo-Json -Depth 3 | Set-Content $trustedFile -Encoding UTF8 }
-function Add-TrustedDevice($mac,$name) {
-    $l = @(Get-TrustedDevices)
-    if (-not ($l | Where-Object { $_.mac -eq $mac })) {
-        $l += [PSCustomObject]@{ mac=$mac; name=$name; added=(Get-Date -Format 'yyyy-MM-dd') }; Save-TrustedDevices $l
-    }
-}
+function Get-TrustedDevices { if (Test-Path $trustedFile) { return (Get-Content $trustedFile -Raw | ConvertFrom-Json) } else { return @() } }
+function Save-TrustedDevices($list) { $list | ConvertTo-Json -Depth 3 | Set-Content $trustedFile -Encoding UTF8 }
+function Add-TrustedDevice($mac,$name) { $list = @(Get-TrustedDevices); $list += [PSCustomObject]@{mac=$mac;name=$name}; Save-TrustedDevices $list }
 function Remove-TrustedDevice($mac) { Save-TrustedDevices (@(Get-TrustedDevices) | Where-Object { $_.mac -ne $mac }) }
 function Get-Brightness { try { return [int](Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightness -EA Stop).CurrentBrightness } catch { return -1 } }
 function Set-Brightness($v) { try { (Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods -EA Stop).WmiSetBrightness(1,[Math]::Max(0,[Math]::Min(100,$v))) } catch {} }
@@ -136,98 +131,95 @@ function Test-DeviceInUse($cat) {
 }
 
 # --- Palette ---
-$bg    = [System.Drawing.Color]::FromArgb(30,30,32)
-$card  = [System.Drawing.Color]::FromArgb(42,42,44)
-$cardL = [System.Drawing.Color]::FromArgb(56,56,58)
-$txt   = [System.Drawing.Color]::FromArgb(245,245,247)
-$dim   = [System.Drawing.Color]::FromArgb(134,134,139)
-$sep   = [System.Drawing.Color]::FromArgb(50,50,52)
+$bg    = [System.Drawing.Color]::FromArgb(28,28,30)
+$card  = [System.Drawing.Color]::FromArgb(44,44,46)
+$cardL = [System.Drawing.Color]::FromArgb(58,58,60)
+$txt   = [System.Drawing.Color]::FromArgb(242,242,247)
+$dim   = [System.Drawing.Color]::FromArgb(142,142,147)
+$sep   = [System.Drawing.Color]::FromArgb(54,54,56)
 $blue  = [System.Drawing.Color]::FromArgb(10,132,255)
 $grn   = [System.Drawing.Color]::FromArgb(48,209,88)
 $org   = [System.Drawing.Color]::FromArgb(255,159,10)
 $red   = [System.Drawing.Color]::FromArgb(255,69,58)
 
-$fH  = New-Object System.Drawing.Font('Segoe UI',13,[System.Drawing.FontStyle]::Bold)
-$fS  = New-Object System.Drawing.Font('Segoe UI',9,[System.Drawing.FontStyle]::Bold)
-$fB  = New-Object System.Drawing.Font('Segoe UI',8.5)
-$fC  = New-Object System.Drawing.Font('Segoe UI',7.5)
-$fT  = New-Object System.Drawing.Font('Segoe UI',6.5)
-$fTB = New-Object System.Drawing.Font('Segoe UI',6.5,[System.Drawing.FontStyle]::Bold)
-$fIc = New-Object System.Drawing.Font('Segoe UI',9)
-$fMd = New-Object System.Drawing.Font('Segoe UI Symbol',12)
-$fDot= New-Object System.Drawing.Font('Segoe UI',11,[System.Drawing.FontStyle]::Bold)
-$fLg = New-Object System.Drawing.Font('Segoe UI',18,[System.Drawing.FontStyle]::Bold)
-$fArr = New-Object System.Drawing.Font('Segoe UI',14)
+$fTitle = New-Object System.Drawing.Font('Segoe UI',9,[System.Drawing.FontStyle]::Bold)
+$fSect  = New-Object System.Drawing.Font('Segoe UI',8.5,[System.Drawing.FontStyle]::Bold)
+$fLabel = New-Object System.Drawing.Font('Segoe UI',8)
+$fValue = New-Object System.Drawing.Font('Segoe UI',8.5,[System.Drawing.FontStyle]::Bold)
+$fSmall = New-Object System.Drawing.Font('Segoe UI',7)
+$fCh    = New-Object System.Drawing.Font('Segoe UI',7,[System.Drawing.FontStyle]::Bold)
+$fIcon  = New-Object System.Drawing.Font('Segoe UI',9)
+$fMd    = New-Object System.Drawing.Font('Segoe UI Symbol',12)
+$fDot   = New-Object System.Drawing.Font('Segoe UI',11,[System.Drawing.FontStyle]::Bold)
+$fLg    = New-Object System.Drawing.Font('Segoe UI',18,[System.Drawing.FontStyle]::Bold)
+$fArr   = New-Object System.Drawing.Font('Segoe UI',14)
 
-$RI = [string][char]0x21BB
+$RI  = [string][char]0x21BB
 $DOT = [string][char]0x25CF
 $aTR   = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Right
 $aLTR  = [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Right
 $aLTRB = $aLTR -bor [System.Windows.Forms.AnchorStyles]::Bottom
-$aLBR  = [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Right
 $aLB   = [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Bottom
 
 # ========== FORM ==========
-$W = 340; $M = 10; $CW = $W - 2*$M; $G = 8
+$W = 300; $pad = 14; $CW = $W - 2*$pad
 
 $form = New-Object DarkForm
 $form.Text = 'Control Center'
 $form.FormBorderStyle = 'None'
 $form.BackColor = $bg
 $form.ForeColor = $txt
-$form.Font = $fB
+$form.Font = $fLabel
 $form.TopMost = $true
-$form.Opacity = 0.95
+$form.Opacity = 0.96
 $form.ShowInTaskbar = $true
 $form.StartPosition = 'Manual'
-$form.MinimumSize = New-Object System.Drawing.Size(300,550)
-$form.Location = New-Object System.Drawing.Point(([System.Windows.Forms.Screen]::PrimaryScreen.WorkingArea.Width - $W - 12),12)
+$form.MinimumSize = New-Object System.Drawing.Size(260,200)
+$form.Location = New-Object System.Drawing.Point(([System.Windows.Forms.Screen]::PrimaryScreen.WorkingArea.Width - $W - 16),16)
 
 $script:drag = $false; $script:dPt = New-Object System.Drawing.Point(0,0)
 $form.Add_MouseDown({ if ($_.Button -eq 'Left') { $script:drag=$true; $script:dPt=$_.Location } })
 $form.Add_MouseMove({ if ($script:drag) { $form.Location = New-Object System.Drawing.Point(($form.Location.X+$_.X-$script:dPt.X),($form.Location.Y+$_.Y-$script:dPt.Y)) } })
 $form.Add_MouseUp({ $script:drag=$false })
+
 $form.Add_Resize({
     if ($form.IsHandleCreated -and $form.WindowState -ne 'Minimized') {
-        [void][WinAPI]::SetWindowRgn($form.Handle,[WinAPI]::CreateRoundRectRgn(0,0,$form.Width,$form.Height,18,18),$true)
-        foreach ($p in @($pW,$pS,$pM,$pSp,$pD)) {
-            if ($p.IsHandleCreated) { [void][WinAPI]::SetWindowRgn($p.Handle,[WinAPI]::CreateRoundRectRgn(0,0,($p.Width+1),($p.Height+1),12,12),$true) }
-        }
+        [void][WinAPI]::SetWindowRgn($form.Handle,[WinAPI]::CreateRoundRectRgn(0,0,($form.Width+1),($form.Height+1),14,14),$true)
     }
 })
 
-$Y = 4
+# ==============================
+#  TITLE BAR
+# ==============================
+$Y = 10
 
-# ---- HEADER: traffic-light buttons + expand/collapse, title ----
 $btnClose = New-Object System.Windows.Forms.Label
-$btnClose.Text = ''; $btnClose.Size = New-Object System.Drawing.Size(12,12)
+$btnClose.Size = New-Object System.Drawing.Size(12,12)
 $btnClose.BackColor = $red; $btnClose.Cursor = 'Hand'
-$btnClose.Location = New-Object System.Drawing.Point(10,6)
+$btnClose.Location = New-Object System.Drawing.Point($pad,$Y)
 $btnClose.Add_Click({ $form.Close() })
 $form.Controls.Add($btnClose)
 
 $btnMin = New-Object System.Windows.Forms.Label
-$btnMin.Text = ''; $btnMin.Size = New-Object System.Drawing.Size(12,12)
+$btnMin.Size = New-Object System.Drawing.Size(12,12)
 $btnMin.BackColor = $org; $btnMin.Cursor = 'Hand'
-$btnMin.Location = New-Object System.Drawing.Point(28,6)
+$btnMin.Location = New-Object System.Drawing.Point(($pad+18),$Y)
 $btnMin.Add_Click({ $form.WindowState = 'Minimized' })
 $form.Controls.Add($btnMin)
 
-$script:expanded = $true; $script:fullH = 0
 $btnExp = New-Object System.Windows.Forms.Label
-$btnExp.Text = ''; $btnExp.Size = New-Object System.Drawing.Size(12,12)
+$btnExp.Size = New-Object System.Drawing.Size(12,12)
 $btnExp.BackColor = $grn; $btnExp.Cursor = 'Hand'
-$btnExp.Location = New-Object System.Drawing.Point(46,6)
+$btnExp.Location = New-Object System.Drawing.Point(($pad+36),$Y)
+$script:expanded = $true; $script:fullH = 0
 $btnExp.Add_Click({
     if ($script:expanded) {
         $script:fullH = $form.Height
-        foreach ($c in @($pW,$pS,$pM,$pSp,$pD)) { $c.Visible = $false }
         $form.MinimumSize = New-Object System.Drawing.Size(200,24)
         $form.Height = 24
         $script:expanded = $false
     } else {
-        $form.MinimumSize = New-Object System.Drawing.Size(300,550)
-        foreach ($c in @($pW,$pS,$pM,$pSp,$pD)) { $c.Visible = $true }
+        $form.MinimumSize = New-Object System.Drawing.Size(260,200)
         $form.Height = $script:fullH
         $script:expanded = $true
     }
@@ -235,326 +227,288 @@ $btnExp.Add_Click({
 $form.Controls.Add($btnExp)
 
 $lblTitle = New-Object System.Windows.Forms.Label
-$lblTitle.Text = 'Control Center'; $lblTitle.Font = $fS; $lblTitle.ForeColor = $txt
-$lblTitle.Location = New-Object System.Drawing.Point(64,$Y); $lblTitle.Size = New-Object System.Drawing.Size(200,16)
+$lblTitle.Text = 'Control Center'; $lblTitle.Font = $fTitle; $lblTitle.ForeColor = $txt
+$lblTitle.TextAlign = [System.Drawing.ContentAlignment]::MiddleLeft
+$lblTitle.Location = New-Object System.Drawing.Point(($pad+54),$Y); $lblTitle.Size = New-Object System.Drawing.Size(100,14)
 $lblTitle.Cursor = 'SizeAll'
 $lblTitle.Add_MouseDown({ if ($_.Button -eq 'Left') { $script:drag=$true; $script:dPt=$_.Location } })
 $lblTitle.Add_MouseMove({ if ($script:drag) { $form.Location = New-Object System.Drawing.Point(($form.Location.X+$_.X-$script:dPt.X),($form.Location.Y+$_.Y-$script:dPt.Y)) } })
 $lblTitle.Add_MouseUp({ $script:drag=$false })
 $form.Controls.Add($lblTitle)
-$Y += 22
+$Y += 24
 
-# ==== WI-FI CARD ====
-$pW = New-Object System.Windows.Forms.Panel
-$pW.Location = New-Object System.Drawing.Point($M,$Y); $pW.Size = New-Object System.Drawing.Size($CW,130); $pW.BackColor = $card
-$pW.Anchor = $aLTR
-$form.Controls.Add($pW)
+# ==============================
+#  WI-FI SECTION
+# ==============================
+$sepW = New-Object System.Windows.Forms.Panel
+$sepW.Location = New-Object System.Drawing.Point($pad,$Y); $sepW.Size = New-Object System.Drawing.Size($CW,1); $sepW.BackColor = $sep; $sepW.Anchor = $aLTR
+$form.Controls.Add($sepW)
+$Y += 6
 
 $l = New-Object System.Windows.Forms.Label
-$l.Text = 'Wi-Fi'; $l.Font = $fS; $l.ForeColor = $grn
-$l.Location = New-Object System.Drawing.Point(12,7); $l.Size = New-Object System.Drawing.Size(42,16)
-$pW.Controls.Add($l)
-
-$bWR = New-Object System.Windows.Forms.Label
-$bWR.Text = $RI; $bWR.Font = $fIc; $bWR.ForeColor = $blue
-$bWR.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
-$bWR.BackColor = $cardL; $bWR.Cursor = 'Hand'
-$bWR.Location = New-Object System.Drawing.Point(56,5); $bWR.Size = New-Object System.Drawing.Size(26,18)
-$pW.Controls.Add($bWR)
-
-$lblWTime = New-Object System.Windows.Forms.Label
-$lblWTime.Text = ''; $lblWTime.Font = $fC; $lblWTime.ForeColor = $dim
-$lblWTime.TextAlign = [System.Drawing.ContentAlignment]::TopRight
-$lblWTime.Location = New-Object System.Drawing.Point(130,10); $lblWTime.Size = New-Object System.Drawing.Size(120,11)
-$lblWTime.Anchor = $aTR
-$pW.Controls.Add($lblWTime)
+$l.Text = 'Wi-Fi'; $l.Font = $fSect; $l.ForeColor = $grn
+$l.Location = New-Object System.Drawing.Point($pad,$Y); $l.Size = New-Object System.Drawing.Size(40,14)
+$form.Controls.Add($l)
 
 $lblWStat = New-Object System.Windows.Forms.Label
-$lblWStat.Text = 'Connected'; $lblWStat.Font = $fT; $lblWStat.ForeColor = $grn
-$lblWStat.Location = New-Object System.Drawing.Point(84,10); $lblWStat.Size = New-Object System.Drawing.Size(48,10)
-$pW.Controls.Add($lblWStat)
+$lblWStat.Font = $fSmall; $lblWStat.ForeColor = $grn
+$lblWStat.TextAlign = [System.Drawing.ContentAlignment]::MiddleLeft
+$lblWStat.Location = New-Object System.Drawing.Point(($pad+44),($Y+1)); $lblWStat.Size = New-Object System.Drawing.Size(55,12)
+$form.Controls.Add($lblWStat)
+
+$bWR = New-Object System.Windows.Forms.Label
+$bWR.Text = $RI; $bWR.Font = $fIcon; $bWR.ForeColor = $blue
+$bWR.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+$bWR.BackColor = $cardL; $bWR.Cursor = 'Hand'
+$bWR.Location = New-Object System.Drawing.Point(($W - $pad - 54),$Y); $bWR.Size = New-Object System.Drawing.Size(24,16)
+$bWR.Anchor = $aTR
+$form.Controls.Add($bWR)
+
+$lblWTime = New-Object System.Windows.Forms.Label
+$lblWTime.Font = $fSmall; $lblWTime.ForeColor = $dim
+$lblWTime.TextAlign = [System.Drawing.ContentAlignment]::MiddleRight
+$lblWTime.Location = New-Object System.Drawing.Point(($W - $pad - 26),($Y+1)); $lblWTime.Size = New-Object System.Drawing.Size(26,12)
+$lblWTime.Anchor = $aTR
+$form.Controls.Add($lblWTime)
+$Y += 20
 
 $wF = @('SSID','Channel','Signal','Speed','Band','Security')
-$lblW = @{}; $ry = 26
+$lblW = @{}
 foreach ($f in $wF) {
     $lk = New-Object System.Windows.Forms.Label
-    $lk.Text = $f; $lk.Font = $fC; $lk.ForeColor = $dim
-    $lk.Location = New-Object System.Drawing.Point(12,$ry); $lk.Size = New-Object System.Drawing.Size(52,12)
-    $pW.Controls.Add($lk)
+    $lk.Text = $f; $lk.Font = $fLabel; $lk.ForeColor = $dim
+    $lk.Location = New-Object System.Drawing.Point($pad,$Y); $lk.Size = New-Object System.Drawing.Size(55,14)
+    $form.Controls.Add($lk)
     $lv = New-Object System.Windows.Forms.Label
-    $lv.Text = '--'; $lv.Font = $fB; $lv.ForeColor = $txt
-    $lv.Location = New-Object System.Drawing.Point(68,$ry); $lv.Size = New-Object System.Drawing.Size(240,12)
+    $lv.Text = '--'; $lv.Font = $fValue; $lv.ForeColor = $txt
+    $lv.Location = New-Object System.Drawing.Point(($pad+58),$Y); $lv.Size = New-Object System.Drawing.Size(($CW - 58),14)
     $lv.Anchor = $aLTR
-    $pW.Controls.Add($lv)
+    $form.Controls.Add($lv)
     $lblW[$f] = $lv
-    $ry += 13
+    $Y += 16
 }
+$Y += 2
 
-$spCh = New-Object System.Windows.Forms.Panel
-$spCh.Location = New-Object System.Drawing.Point(12,103); $spCh.Size = New-Object System.Drawing.Size(($CW-24),1); $spCh.BackColor = $sep
-$spCh.Anchor = $aLTR
-$pW.Controls.Add($spCh)
-
-$script:lblCh = @{}; $chX = 14
+$chW = 22; $chGap = 2
+$totalChW = 11 * $chW + 10 * $chGap
+$chStart = [int](($W - $totalChW) / 2)
+$script:lblCh = @{}; $chX = $chStart
 for ($ch = 1; $ch -le 11; $ch++) {
     $cl = New-Object System.Windows.Forms.Label
-    $cl.Text = [string]$ch; $cl.Font = $fT; $cl.ForeColor = $bg
+    $cl.Text = [string]$ch; $cl.Font = $fCh; $cl.ForeColor = $bg
     $cl.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
-    $cl.BackColor = $dim; $cl.Size = New-Object System.Drawing.Size(22,16)
-    $cl.Location = New-Object System.Drawing.Point($chX,109)
-    $pW.Controls.Add($cl)
+    $cl.BackColor = $dim; $cl.Size = New-Object System.Drawing.Size($chW,18)
+    $cl.Location = New-Object System.Drawing.Point($chX,$Y)
+    $form.Controls.Add($cl)
     $script:lblCh[$ch] = $cl
-    $chX += 25
+    $chX += ($chW + $chGap)
 }
+$Y += 24
 
-function Update-Wifi {
-    $bWR.ForeColor = $txt
-    $w = Get-WifiInfo
-    $lblW['SSID'].Text = if ($w['SSID']) { [string]$w['SSID'] } else { 'N/A' }
-    $myCh = $w['Channel']
-    $lblW['Channel'].Text = if ($myCh) { [string]$myCh } else { 'N/A' }
-    if ($myCh -and ($myCh -in @('1','6','11'))) { $lblW['Channel'].ForeColor = $grn } else { $lblW['Channel'].ForeColor = $org }
-    $lblW['Signal'].Text = if ($w['Signal']) { [string]$w['Signal'] } else { 'N/A' }
-    $lblW['Speed'].Text = if ($w['Receive rate (Mbps)']) { "$($w['Receive rate (Mbps)']) Mbps" } else { 'N/A' }
-    $lblW['Band'].Text = if ($w['Radio type']) { [string]$w['Radio type'] } else { 'N/A' }
-    $lblW['Security'].Text = if ($w['Authentication']) { [string]$w['Authentication'] } else { 'N/A' }
-    $chMap = Get-ChannelMap
-    $myChNum = 0; if ($myCh) { try { $myChNum = [int]$myCh } catch {} }
-    if ($myChNum -gt 0 -and $chMap.ContainsKey($myChNum)) { $chMap[$myChNum] = [Math]::Max(0,$chMap[$myChNum]-1) }
-    for ($i = 1; $i -le 11; $i++) {
-        $cnt = 0; if ($chMap.ContainsKey($i)) { $cnt = $chMap[$i] }
-        if ($cnt -eq 0) { $script:lblCh[$i].BackColor = $grn }
-        elseif ($cnt -le 2) { $script:lblCh[$i].BackColor = $org }
-        else { $script:lblCh[$i].BackColor = $red }
-        if ($i -eq $myChNum) { $script:lblCh[$i].Font = $fTB; $script:lblCh[$i].ForeColor = $txt }
-        else { $script:lblCh[$i].Font = $fT; $script:lblCh[$i].ForeColor = $bg }
-    }
-    $lblWTime.Text = Get-Date -Format 'HH:mm:ss'
-    if ($w['SSID']) { $lblWStat.Text = 'Connected'; $lblWStat.ForeColor = $grn } else { $lblWStat.Text = 'No Wi-Fi'; $lblWStat.ForeColor = $red }
-    $bWR.ForeColor = $blue
-}
-$bWR.Add_Click({ Update-Wifi })
-$Y += (130 + $G)
+# ==============================
+#  CONTROLS SECTION
+# ==============================
+$sepC = New-Object System.Windows.Forms.Panel
+$sepC.Location = New-Object System.Drawing.Point($pad,$Y); $sepC.Size = New-Object System.Drawing.Size($CW,1); $sepC.BackColor = $sep; $sepC.Anchor = $aLTR
+$form.Controls.Add($sepC)
+$Y += 6
 
-# ==== CONTROLS CARD ====
-$pS = New-Object System.Windows.Forms.Panel
-$pS.Location = New-Object System.Drawing.Point($M,$Y); $pS.Size = New-Object System.Drawing.Size($CW,92); $pS.BackColor = $card
-$pS.Anchor = $aLTR
-$form.Controls.Add($pS)
-
-# Volume (synced with system via Core Audio API)
 $l = New-Object System.Windows.Forms.Label
-$l.Text = 'Volume'; $l.Font = $fC; $l.ForeColor = $dim
-$l.Location = New-Object System.Drawing.Point(12,6); $l.Size = New-Object System.Drawing.Size(48,12)
-$pS.Controls.Add($l)
+$l.Text = 'Volume'; $l.Font = $fLabel; $l.ForeColor = $dim
+$l.Location = New-Object System.Drawing.Point($pad,$Y); $l.Size = New-Object System.Drawing.Size(48,14)
+$form.Controls.Add($l)
 
 $bMute = New-Object System.Windows.Forms.Button
-$bMute.Text = 'M'; $bMute.Font = $fC; $bMute.FlatStyle = 'Flat'; $bMute.FlatAppearance.BorderSize = 0
+$bMute.Text = 'M'; $bMute.Font = $fSmall; $bMute.FlatStyle = 'Flat'; $bMute.FlatAppearance.BorderSize = 0
 $bMute.BackColor = $cardL; $bMute.ForeColor = $dim; $bMute.Cursor = 'Hand'
-$bMute.Location = New-Object System.Drawing.Point(62,3); $bMute.Size = New-Object System.Drawing.Size(20,16)
+$bMute.Location = New-Object System.Drawing.Point(($pad+50),($Y-1)); $bMute.Size = New-Object System.Drawing.Size(20,16)
 $bMute.Add_Click({ [AudioManager]::ToggleMute() })
-$pS.Controls.Add($bMute)
+$form.Controls.Add($bMute)
 
 $initVol = [AudioManager]::GetVolume(); if ($initVol -lt 0) { $initVol = 50 }
 $sVol = New-Object System.Windows.Forms.TrackBar
-$sVol.Location = New-Object System.Drawing.Point(84,0); $sVol.Size = New-Object System.Drawing.Size(($CW-126),25)
-$sVol.Minimum = 0; $sVol.Maximum = 100; $sVol.Value = $initVol; $sVol.TickStyle = 'None'; $sVol.BackColor = $card
+$sVol.Location = New-Object System.Drawing.Point(($pad+72),($Y-4)); $sVol.Size = New-Object System.Drawing.Size(($CW-104),25)
+$sVol.Minimum = 0; $sVol.Maximum = 100; $sVol.Value = $initVol; $sVol.TickStyle = 'None'; $sVol.BackColor = $bg
 $sVol.Anchor = $aLTR
-$pS.Controls.Add($sVol)
+$form.Controls.Add($sVol)
 $lVV = New-Object System.Windows.Forms.Label
-$lVV.Text = [string]$initVol; $lVV.Font = $fC; $lVV.ForeColor = $dim; $lVV.BackColor = $card
+$lVV.Text = [string]$initVol; $lVV.Font = $fSmall; $lVV.ForeColor = $dim
 $lVV.TextAlign = [System.Drawing.ContentAlignment]::TopRight
-$lVV.Location = New-Object System.Drawing.Point(($CW-42),6); $lVV.Size = New-Object System.Drawing.Size(34,12)
+$lVV.Location = New-Object System.Drawing.Point(($W-$pad-28),$Y); $lVV.Size = New-Object System.Drawing.Size(28,12)
 $lVV.Anchor = $aTR
-$pS.Controls.Add($lVV)
+$form.Controls.Add($lVV)
 $script:volSync = $false
 $sVol.Add_Scroll({ [AudioManager]::SetVolume($sVol.Value); $lVV.Text = [string]$sVol.Value })
 $sVol.Add_ValueChanged({ if (-not $script:volSync) { [AudioManager]::SetVolume($sVol.Value); $lVV.Text = [string]$sVol.Value } })
+$Y += 22
 
-$sp1 = New-Object System.Windows.Forms.Panel
-$sp1.Location = New-Object System.Drawing.Point(12,27); $sp1.Size = New-Object System.Drawing.Size(($CW-24),1); $sp1.BackColor = $sep
-$sp1.Anchor = $aLTR
-$pS.Controls.Add($sp1)
-
-# Brightness
 $l = New-Object System.Windows.Forms.Label
-$l.Text = 'Display'; $l.Font = $fC; $l.ForeColor = $dim
-$l.Location = New-Object System.Drawing.Point(12,34); $l.Size = New-Object System.Drawing.Size(48,12)
-$pS.Controls.Add($l)
+$l.Text = 'Display'; $l.Font = $fLabel; $l.ForeColor = $dim
+$l.Location = New-Object System.Drawing.Point($pad,$Y); $l.Size = New-Object System.Drawing.Size(48,14)
+$form.Controls.Add($l)
 $cB = Get-Brightness; if ($cB -lt 0) { $cB = 50 }
 $sBri = New-Object System.Windows.Forms.TrackBar
-$sBri.Location = New-Object System.Drawing.Point(84,30); $sBri.Size = New-Object System.Drawing.Size(($CW-126),25)
-$sBri.Minimum = 0; $sBri.Maximum = 100; $sBri.Value = $cB; $sBri.TickStyle = 'None'; $sBri.BackColor = $card
+$sBri.Location = New-Object System.Drawing.Point(($pad+72),($Y-4)); $sBri.Size = New-Object System.Drawing.Size(($CW-104),25)
+$sBri.Minimum = 0; $sBri.Maximum = 100; $sBri.Value = $cB; $sBri.TickStyle = 'None'; $sBri.BackColor = $bg
 $sBri.Anchor = $aLTR
-$pS.Controls.Add($sBri)
+$form.Controls.Add($sBri)
 $lBV = New-Object System.Windows.Forms.Label
-$lBV.Text = [string]$cB; $lBV.Font = $fC; $lBV.ForeColor = $dim; $lBV.BackColor = $card
+$lBV.Text = [string]$cB; $lBV.Font = $fSmall; $lBV.ForeColor = $dim
 $lBV.TextAlign = [System.Drawing.ContentAlignment]::TopRight
-$lBV.Location = New-Object System.Drawing.Point(($CW-42),34); $lBV.Size = New-Object System.Drawing.Size(34,12)
+$lBV.Location = New-Object System.Drawing.Point(($W-$pad-28),$Y); $lBV.Size = New-Object System.Drawing.Size(28,12)
 $lBV.Anchor = $aTR
-$pS.Controls.Add($lBV)
+$form.Controls.Add($lBV)
 $sBri.Add_Scroll({ Set-Brightness $sBri.Value; $lBV.Text = [string]$sBri.Value })
+$Y += 22
 
-$sp2 = New-Object System.Windows.Forms.Panel
-$sp2.Location = New-Object System.Drawing.Point(12,57); $sp2.Size = New-Object System.Drawing.Size(($CW-24),1); $sp2.BackColor = $sep
-$sp2.Anchor = $aLTR
-$pS.Controls.Add($sp2)
-
-# Opacity
 $l = New-Object System.Windows.Forms.Label
-$l.Text = 'Opacity'; $l.Font = $fC; $l.ForeColor = $dim
-$l.Location = New-Object System.Drawing.Point(12,66); $l.Size = New-Object System.Drawing.Size(40,12)
-$pS.Controls.Add($l)
+$l.Text = 'Opacity'; $l.Font = $fLabel; $l.ForeColor = $dim
+$l.Location = New-Object System.Drawing.Point($pad,$Y); $l.Size = New-Object System.Drawing.Size(48,14)
+$form.Controls.Add($l)
 $sOpa = New-Object System.Windows.Forms.TrackBar
-$sOpa.Location = New-Object System.Drawing.Point(84,62); $sOpa.Size = New-Object System.Drawing.Size(($CW-126),25)
-$sOpa.Minimum = 20; $sOpa.Maximum = 100; $sOpa.Value = 95; $sOpa.TickStyle = 'None'; $sOpa.BackColor = $card
+$sOpa.Location = New-Object System.Drawing.Point(($pad+72),($Y-4)); $sOpa.Size = New-Object System.Drawing.Size(($CW-104),25)
+$sOpa.Minimum = 20; $sOpa.Maximum = 100; $sOpa.Value = 96; $sOpa.TickStyle = 'None'; $sOpa.BackColor = $bg
 $sOpa.Anchor = $aLTR
-$pS.Controls.Add($sOpa)
+$form.Controls.Add($sOpa)
 $lOV = New-Object System.Windows.Forms.Label
-$lOV.Text = '95%'; $lOV.Font = $fC; $lOV.ForeColor = $dim; $lOV.BackColor = $card
+$lOV.Text = '96%'; $lOV.Font = $fSmall; $lOV.ForeColor = $dim
 $lOV.TextAlign = [System.Drawing.ContentAlignment]::TopRight
-$lOV.Location = New-Object System.Drawing.Point(($CW-42),66); $lOV.Size = New-Object System.Drawing.Size(34,12)
+$lOV.Location = New-Object System.Drawing.Point(($W-$pad-28),$Y); $lOV.Size = New-Object System.Drawing.Size(28,12)
 $lOV.Anchor = $aTR
-$pS.Controls.Add($lOV)
+$form.Controls.Add($lOV)
 $sOpa.Add_Scroll({ $form.Opacity = $sOpa.Value / 100; $lOV.Text = "$($sOpa.Value)%" })
-$Y += (92 + $G)
+$Y += 22
 
-# ==== MEDIA + PRIVACY (green circle ON, red circle OFF) ====
-$pM = New-Object System.Windows.Forms.Panel
-$pM.Location = New-Object System.Drawing.Point($M,$Y); $pM.Size = New-Object System.Drawing.Size($CW,34); $pM.BackColor = $card
-$pM.Anchor = $aLTR
-$form.Controls.Add($pM)
+# ==============================
+#  MEDIA + PRIVACY
+# ==============================
+$sepM = New-Object System.Windows.Forms.Panel
+$sepM.Location = New-Object System.Drawing.Point($pad,$Y); $sepM.Size = New-Object System.Drawing.Size($CW,1); $sepM.BackColor = $sep; $sepM.Anchor = $aLTR
+$form.Controls.Add($sepM)
+$Y += 6
 
 $script:mediaBtns = New-Object System.Collections.ArrayList
+$mbX = $pad
 foreach ($mInfo in @(
-    @{ T=[string][char]0x23EE; X=12; BG=$cardL; VK=0xB1 },
-    @{ T=[string][char]0x23EF; X=52; BG=$blue;  VK=0xB3 },
-    @{ T=[string][char]0x23ED; X=92; BG=$cardL; VK=0xB0 }
+    @{ T=[string][char]0x23EE; BG=$cardL; VK=0xB1 },
+    @{ T=[string][char]0x23EF; BG=$blue;  VK=0xB3 },
+    @{ T=[string][char]0x23ED; BG=$cardL; VK=0xB0 }
 )) {
     $mb = New-Object System.Windows.Forms.Button
     $mb.Text = $mInfo.T; $mb.Font = $fMd; $mb.FlatStyle = 'Flat'; $mb.FlatAppearance.BorderSize = 0
     $mb.BackColor = $mInfo.BG; $mb.ForeColor = $txt; $mb.Cursor = 'Hand'
-    $mb.Location = New-Object System.Drawing.Point($mInfo.X,4); $mb.Size = New-Object System.Drawing.Size(36,25)
+    $mb.Location = New-Object System.Drawing.Point($mbX,$Y); $mb.Size = New-Object System.Drawing.Size(36,25)
     $vk = $mInfo.VK
     $mb.Add_Click({ [WinAPI]::Key($vk) }.GetNewClosure())
-    $pM.Controls.Add($mb)
+    $form.Controls.Add($mb)
     [void]$script:mediaBtns.Add($mb)
+    $mbX += 40
 }
 
 $lMicDot = New-Object System.Windows.Forms.Label
 $lMicDot.Text = $DOT; $lMicDot.Font = $fDot; $lMicDot.ForeColor = $red
-$lMicDot.Location = New-Object System.Drawing.Point(144,5); $lMicDot.Size = New-Object System.Drawing.Size(16,20)
-$pM.Controls.Add($lMicDot)
+$lMicDot.Location = New-Object System.Drawing.Point(($pad+128),($Y+2)); $lMicDot.Size = New-Object System.Drawing.Size(16,20)
+$form.Controls.Add($lMicDot)
 $lMic = New-Object System.Windows.Forms.Label
-$lMic.Text = 'MIC'; $lMic.Font = $fC; $lMic.ForeColor = $dim
-$lMic.Location = New-Object System.Drawing.Point(160,10); $lMic.Size = New-Object System.Drawing.Size(28,14)
-$pM.Controls.Add($lMic)
+$lMic.Text = 'MIC'; $lMic.Font = $fSmall; $lMic.ForeColor = $dim
+$lMic.Location = New-Object System.Drawing.Point(($pad+144),($Y+7)); $lMic.Size = New-Object System.Drawing.Size(26,12)
+$form.Controls.Add($lMic)
 
 $lCamDot = New-Object System.Windows.Forms.Label
 $lCamDot.Text = $DOT; $lCamDot.Font = $fDot; $lCamDot.ForeColor = $red
-$lCamDot.Location = New-Object System.Drawing.Point(204,5); $lCamDot.Size = New-Object System.Drawing.Size(16,20)
-$pM.Controls.Add($lCamDot)
+$lCamDot.Location = New-Object System.Drawing.Point(($pad+178),($Y+2)); $lCamDot.Size = New-Object System.Drawing.Size(16,20)
+$form.Controls.Add($lCamDot)
 $lCam = New-Object System.Windows.Forms.Label
-$lCam.Text = 'CAM'; $lCam.Font = $fC; $lCam.ForeColor = $dim
-$lCam.Location = New-Object System.Drawing.Point(220,10); $lCam.Size = New-Object System.Drawing.Size(28,14)
-$pM.Controls.Add($lCam)
-$Y += (34 + $G)
+$lCam.Text = 'CAM'; $lCam.Font = $fSmall; $lCam.ForeColor = $dim
+$lCam.Location = New-Object System.Drawing.Point(($pad+194),($Y+7)); $lCam.Size = New-Object System.Drawing.Size(26,12)
+$form.Controls.Add($lCam)
+$Y += 32
 
-# ==== SPEED TEST CARD (two-column layout) ====
-$pSp = New-Object System.Windows.Forms.Panel
-$pSp.Location = New-Object System.Drawing.Point($M,$Y); $pSp.Size = New-Object System.Drawing.Size($CW,134); $pSp.BackColor = $card
-$pSp.Anchor = $aLTR
-$form.Controls.Add($pSp)
+# ==============================
+#  SPEED TEST
+# ==============================
+$sepS = New-Object System.Windows.Forms.Panel
+$sepS.Location = New-Object System.Drawing.Point($pad,$Y); $sepS.Size = New-Object System.Drawing.Size($CW,1); $sepS.BackColor = $sep; $sepS.Anchor = $aLTR
+$form.Controls.Add($sepS)
+$Y += 6
 
 $l = New-Object System.Windows.Forms.Label
-$l.Text = 'Speed Test'; $l.Font = $fS; $l.ForeColor = $org
-$l.Location = New-Object System.Drawing.Point(12,7); $l.Size = New-Object System.Drawing.Size(76,16)
-$pSp.Controls.Add($l)
+$l.Text = 'Speed Test'; $l.Font = $fSect; $l.ForeColor = $org
+$l.Location = New-Object System.Drawing.Point($pad,$Y); $l.Size = New-Object System.Drawing.Size(76,14)
+$form.Controls.Add($l)
 
 $bSpRun = New-Object System.Windows.Forms.Label
-$bSpRun.Text = [string][char]0x25B6; $bSpRun.Font = $fIc; $bSpRun.ForeColor = $bg
+$bSpRun.Text = [string][char]0x25B6; $bSpRun.Font = $fIcon; $bSpRun.ForeColor = $bg
 $bSpRun.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $bSpRun.BackColor = $org; $bSpRun.Cursor = 'Hand'
-$bSpRun.Location = New-Object System.Drawing.Point(90,5); $bSpRun.Size = New-Object System.Drawing.Size(26,18)
-$pSp.Controls.Add($bSpRun)
+$bSpRun.Location = New-Object System.Drawing.Point(($pad+80),$Y); $bSpRun.Size = New-Object System.Drawing.Size(24,16)
+$form.Controls.Add($bSpRun)
+$Y += 20
 
-$spSep0 = New-Object System.Windows.Forms.Panel
-$spSep0.Location = New-Object System.Drawing.Point(12,25); $spSep0.Size = New-Object System.Drawing.Size(($CW-24),1); $spSep0.BackColor = $sep
-$spSep0.Anchor = $aLTR
-$pSp.Controls.Add($spSep0)
-
-$half = [int]($CW / 2)
+$half = [int]($W / 2)
 
 $lDlArr = New-Object System.Windows.Forms.Label
 $lDlArr.Text = [string][char]0x2193; $lDlArr.Font = $fArr; $lDlArr.ForeColor = $grn
-$lDlArr.Location = New-Object System.Drawing.Point(14,32); $lDlArr.Size = New-Object System.Drawing.Size(20,22)
-$pSp.Controls.Add($lDlArr)
+$lDlArr.Location = New-Object System.Drawing.Point($pad,$Y); $lDlArr.Size = New-Object System.Drawing.Size(20,22)
+$form.Controls.Add($lDlArr)
 
 $lblSpDl = New-Object System.Windows.Forms.Label
 $lblSpDl.Text = '--'; $lblSpDl.Font = $fLg; $lblSpDl.ForeColor = $txt
-$lblSpDl.Location = New-Object System.Drawing.Point(36,28); $lblSpDl.Size = New-Object System.Drawing.Size(110,26)
-$pSp.Controls.Add($lblSpDl)
+$lblSpDl.Location = New-Object System.Drawing.Point(($pad+22),($Y-4)); $lblSpDl.Size = New-Object System.Drawing.Size(100,26)
+$form.Controls.Add($lblSpDl)
 
 $lDlU = New-Object System.Windows.Forms.Label
-$lDlU.Text = 'Mbps'; $lDlU.Font = $fC; $lDlU.ForeColor = $dim
-$lDlU.Location = New-Object System.Drawing.Point(36,52); $lDlU.Size = New-Object System.Drawing.Size(40,12)
-$pSp.Controls.Add($lDlU)
+$lDlU.Text = 'Mbps'; $lDlU.Font = $fSmall; $lDlU.ForeColor = $dim
+$lDlU.Location = New-Object System.Drawing.Point(($pad+22),($Y+20)); $lDlU.Size = New-Object System.Drawing.Size(40,12)
+$form.Controls.Add($lDlU)
 
 $lUlArr = New-Object System.Windows.Forms.Label
 $lUlArr.Text = [string][char]0x2191; $lUlArr.Font = $fArr; $lUlArr.ForeColor = $blue
-$lUlArr.Location = New-Object System.Drawing.Point($half,32); $lUlArr.Size = New-Object System.Drawing.Size(20,22)
-$pSp.Controls.Add($lUlArr)
+$lUlArr.Location = New-Object System.Drawing.Point($half,$Y); $lUlArr.Size = New-Object System.Drawing.Size(20,22)
+$form.Controls.Add($lUlArr)
 
 $lblSpUl = New-Object System.Windows.Forms.Label
 $lblSpUl.Text = '--'; $lblSpUl.Font = $fLg; $lblSpUl.ForeColor = $txt
-$lblSpUl.Location = New-Object System.Drawing.Point(($half+22),28); $lblSpUl.Size = New-Object System.Drawing.Size(110,26)
-$pSp.Controls.Add($lblSpUl)
+$lblSpUl.Location = New-Object System.Drawing.Point(($half+22),($Y-4)); $lblSpUl.Size = New-Object System.Drawing.Size(100,26)
+$form.Controls.Add($lblSpUl)
 
 $lUlU = New-Object System.Windows.Forms.Label
-$lUlU.Text = 'Mbps'; $lUlU.Font = $fC; $lUlU.ForeColor = $dim
-$lUlU.Location = New-Object System.Drawing.Point(($half+22),52); $lUlU.Size = New-Object System.Drawing.Size(40,12)
-$pSp.Controls.Add($lUlU)
-
-$spSep1 = New-Object System.Windows.Forms.Panel
-$spSep1.Location = New-Object System.Drawing.Point(12,67); $spSep1.Size = New-Object System.Drawing.Size(($CW-24),1); $spSep1.BackColor = $sep
-$spSep1.Anchor = $aLTR
-$pSp.Controls.Add($spSep1)
+$lUlU.Text = 'Mbps'; $lUlU.Font = $fSmall; $lUlU.ForeColor = $dim
+$lUlU.Location = New-Object System.Drawing.Point(($half+22),($Y+20)); $lUlU.Size = New-Object System.Drawing.Size(40,12)
+$form.Controls.Add($lUlU)
+$Y += 36
 
 $lPnL = New-Object System.Windows.Forms.Label
-$lPnL.Text = 'Ping'; $lPnL.Font = $fC; $lPnL.ForeColor = $dim
-$lPnL.Location = New-Object System.Drawing.Point(14,72); $lPnL.Size = New-Object System.Drawing.Size(30,12)
-$pSp.Controls.Add($lPnL)
-
+$lPnL.Text = 'Ping'; $lPnL.Font = $fSmall; $lPnL.ForeColor = $dim
+$lPnL.Location = New-Object System.Drawing.Point($pad,$Y); $lPnL.Size = New-Object System.Drawing.Size(28,12)
+$form.Controls.Add($lPnL)
 $lblSpPn = New-Object System.Windows.Forms.Label
-$lblSpPn.Text = '--'; $lblSpPn.Font = $fS; $lblSpPn.ForeColor = $txt
-$lblSpPn.Location = New-Object System.Drawing.Point(14,84); $lblSpPn.Size = New-Object System.Drawing.Size(100,16)
-$pSp.Controls.Add($lblSpPn)
+$lblSpPn.Text = '--'; $lblSpPn.Font = $fSect; $lblSpPn.ForeColor = $txt
+$lblSpPn.Location = New-Object System.Drawing.Point(($pad+30),$Y); $lblSpPn.Size = New-Object System.Drawing.Size(80,14)
+$form.Controls.Add($lblSpPn)
 
 $lJtL = New-Object System.Windows.Forms.Label
-$lJtL.Text = 'Jitter'; $lJtL.Font = $fC; $lJtL.ForeColor = $dim
-$lJtL.Location = New-Object System.Drawing.Point($half,72); $lJtL.Size = New-Object System.Drawing.Size(34,12)
-$pSp.Controls.Add($lJtL)
-
+$lJtL.Text = 'Jitter'; $lJtL.Font = $fSmall; $lJtL.ForeColor = $dim
+$lJtL.Location = New-Object System.Drawing.Point($half,$Y); $lJtL.Size = New-Object System.Drawing.Size(30,12)
+$form.Controls.Add($lJtL)
 $lblSpJt = New-Object System.Windows.Forms.Label
-$lblSpJt.Text = '--'; $lblSpJt.Font = $fS; $lblSpJt.ForeColor = $txt
-$lblSpJt.Location = New-Object System.Drawing.Point($half,84); $lblSpJt.Size = New-Object System.Drawing.Size(100,16)
-$pSp.Controls.Add($lblSpJt)
-
-$spSep2 = New-Object System.Windows.Forms.Panel
-$spSep2.Location = New-Object System.Drawing.Point(12,102); $spSep2.Size = New-Object System.Drawing.Size(($CW-24),1); $spSep2.BackColor = $sep
-$spSep2.Anchor = $aLTR
-$pSp.Controls.Add($spSep2)
+$lblSpJt.Text = '--'; $lblSpJt.Font = $fSect; $lblSpJt.ForeColor = $txt
+$lblSpJt.Location = New-Object System.Drawing.Point(($half+32),$Y); $lblSpJt.Size = New-Object System.Drawing.Size(80,14)
+$form.Controls.Add($lblSpJt)
+$Y += 18
 
 $lblSpSrv = New-Object System.Windows.Forms.Label
-$lblSpSrv.Text = '--'; $lblSpSrv.Font = $fC; $lblSpSrv.ForeColor = $dim
-$lblSpSrv.Location = New-Object System.Drawing.Point(14,106); $lblSpSrv.Size = New-Object System.Drawing.Size(290,12)
+$lblSpSrv.Text = '--'; $lblSpSrv.Font = $fSmall; $lblSpSrv.ForeColor = $dim
+$lblSpSrv.Location = New-Object System.Drawing.Point($pad,$Y); $lblSpSrv.Size = New-Object System.Drawing.Size($CW,12)
 $lblSpSrv.Anchor = $aLTR
-$pSp.Controls.Add($lblSpSrv)
+$form.Controls.Add($lblSpSrv)
+$Y += 14
 
 $lSpM = New-Object System.Windows.Forms.Label
-$lSpM.Text = ''; $lSpM.Font = $fC; $lSpM.ForeColor = $dim
-$lSpM.Location = New-Object System.Drawing.Point(14,120); $lSpM.Size = New-Object System.Drawing.Size(290,12)
-$pSp.Controls.Add($lSpM)
+$lSpM.Text = ''; $lSpM.Font = $fSmall; $lSpM.ForeColor = $dim
+$lSpM.Location = New-Object System.Drawing.Point($pad,$Y); $lSpM.Size = New-Object System.Drawing.Size($CW,12)
+$form.Controls.Add($lSpM)
+$Y += 16
 
 $script:spRunning = $false
 $bSpRun.Add_Click({
@@ -584,46 +538,50 @@ $bSpRun.Add_Click({
     } catch { $lSpM.Text = 'Error'; $lSpM.ForeColor = $red }
     $script:spRunning = $false; $bSpRun.Text = [string][char]0x25B6
 })
-$Y += (134 + $G)
 
-# ==== DEVICES CARD (moved to bottom, stretches on resize) ====
-$pD = New-Object System.Windows.Forms.Panel
-$pD.Location = New-Object System.Drawing.Point($M,$Y); $pD.Size = New-Object System.Drawing.Size($CW,130); $pD.BackColor = $card
-$pD.Anchor = $aLTRB
-$form.Controls.Add($pD)
+# ==============================
+#  DEVICES
+# ==============================
+$sepD = New-Object System.Windows.Forms.Panel
+$sepD.Location = New-Object System.Drawing.Point($pad,$Y); $sepD.Size = New-Object System.Drawing.Size($CW,1); $sepD.BackColor = $sep; $sepD.Anchor = $aLTR
+$form.Controls.Add($sepD)
+$Y += 6
 
 $l = New-Object System.Windows.Forms.Label
-$l.Text = 'Devices'; $l.Font = $fS; $l.ForeColor = $blue
-$l.Location = New-Object System.Drawing.Point(12,7); $l.Size = New-Object System.Drawing.Size(56,16)
-$pD.Controls.Add($l)
-
-$lDC = New-Object System.Windows.Forms.Label
-$lDC.Text = "Tap $RI to scan"; $lDC.Font = $fC; $lDC.ForeColor = $dim
-$lDC.TextAlign = [System.Drawing.ContentAlignment]::TopRight
-$lDC.Location = New-Object System.Drawing.Point(120,8); $lDC.Size = New-Object System.Drawing.Size(140,12)
-$lDC.Anchor = $aTR
-$pD.Controls.Add($lDC)
+$l.Text = 'Devices'; $l.Font = $fSect; $l.ForeColor = $blue
+$l.Location = New-Object System.Drawing.Point($pad,$Y); $l.Size = New-Object System.Drawing.Size(56,14)
+$form.Controls.Add($l)
 
 $bDR = New-Object System.Windows.Forms.Label
-$bDR.Text = "$RI Scan"; $bDR.Font = $fC; $bDR.ForeColor = $blue
+$bDR.Text = "$RI Scan"; $bDR.Font = $fSmall; $bDR.ForeColor = $blue
 $bDR.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $bDR.BackColor = $cardL; $bDR.Cursor = 'Hand'
-$bDR.Location = New-Object System.Drawing.Point(70,5); $bDR.Size = New-Object System.Drawing.Size(50,18)
-$pD.Controls.Add($bDR)
+$bDR.Location = New-Object System.Drawing.Point(($pad+60),$Y); $bDR.Size = New-Object System.Drawing.Size(46,16)
+$form.Controls.Add($bDR)
+
+$lDC = New-Object System.Windows.Forms.Label
+$lDC.Text = "Tap $RI to scan"; $lDC.Font = $fSmall; $lDC.ForeColor = $dim
+$lDC.TextAlign = [System.Drawing.ContentAlignment]::TopRight
+$lDC.Location = New-Object System.Drawing.Point(($W-$pad-120),($Y+1)); $lDC.Size = New-Object System.Drawing.Size(120,12)
+$lDC.Anchor = $aTR
+$form.Controls.Add($lDC)
+$Y += 20
 
 $lsD = New-Object System.Windows.Forms.ListView
-$lsD.Location = New-Object System.Drawing.Point(12,26); $lsD.Size = New-Object System.Drawing.Size(($CW-24),78)
-$lsD.View = 'Details'; $lsD.FullRowSelect = $true; $lsD.BackColor = $card; $lsD.ForeColor = $txt; $lsD.Font = $fC
+$lsD.Location = New-Object System.Drawing.Point($pad,$Y); $lsD.Size = New-Object System.Drawing.Size($CW,78)
+$lsD.View = 'Details'; $lsD.FullRowSelect = $true; $lsD.BackColor = $bg; $lsD.ForeColor = $txt; $lsD.Font = $fSmall
 $lsD.GridLines = $false; $lsD.BorderStyle = 'None'; $lsD.HeaderStyle = 'Nonclickable'; $lsD.Scrollable = $false
 $lsD.Anchor = $aLTRB
-[void]$lsD.Columns.Add('',22); [void]$lsD.Columns.Add('IP',78); [void]$lsD.Columns.Add('MAC',108); [void]$lsD.Columns.Add('Name',100)
-$pD.Controls.Add($lsD)
+[void]$lsD.Columns.Add('',20); [void]$lsD.Columns.Add('IP',70); [void]$lsD.Columns.Add('MAC',96); [void]$lsD.Columns.Add('Name',80)
+$form.Controls.Add($lsD)
+$Y += 82
 
 $lAlert = New-Object System.Windows.Forms.Label
-$lAlert.Text = ''; $lAlert.Font = $fC; $lAlert.ForeColor = $dim
-$lAlert.Location = New-Object System.Drawing.Point(12,110); $lAlert.Size = New-Object System.Drawing.Size(290,12)
+$lAlert.Text = ''; $lAlert.Font = $fSmall; $lAlert.ForeColor = $dim
+$lAlert.Location = New-Object System.Drawing.Point($pad,$Y); $lAlert.Size = New-Object System.Drawing.Size($CW,12)
 $lAlert.Anchor = $aLB
-$pD.Controls.Add($lAlert)
+$form.Controls.Add($lAlert)
+$Y += 18
 
 $ctx = New-Object System.Windows.Forms.ContextMenuStrip
 $mT = New-Object System.Windows.Forms.ToolStripMenuItem('Trust')
@@ -633,12 +591,12 @@ $mT.Add_Click({
         $sMac = [string]$sel.SubItems[2].Text; $sIp = [string]$sel.SubItems[1].Text
         $dlg = New-Object System.Windows.Forms.Form
         $dlg.Text = 'Name'; $dlg.Size = New-Object System.Drawing.Size(260,100)
-        $dlg.StartPosition = 'CenterParent'; $dlg.BackColor = $card; $dlg.ForeColor = $txt; $dlg.TopMost = $true
+        $dlg.StartPosition = 'CenterParent'; $dlg.BackColor = $bg; $dlg.ForeColor = $txt; $dlg.TopMost = $true
         $tbox = New-Object System.Windows.Forms.TextBox
         $tbox.Location = New-Object System.Drawing.Point(8,10); $tbox.Size = New-Object System.Drawing.Size(230,22); $tbox.Text = "Device $sIp"
         $dlg.Controls.Add($tbox)
         $okBtn = New-Object System.Windows.Forms.Button
-        $okBtn.Text = 'OK'; $okBtn.Font = $fB; $okBtn.FlatStyle = 'Flat'; $okBtn.FlatAppearance.BorderSize = 0
+        $okBtn.Text = 'OK'; $okBtn.Font = $fLabel; $okBtn.FlatStyle = 'Flat'; $okBtn.FlatAppearance.BorderSize = 0
         $okBtn.BackColor = $grn; $okBtn.ForeColor = $bg; $okBtn.Cursor = 'Hand'
         $okBtn.Location = New-Object System.Drawing.Point(80,40); $okBtn.Size = New-Object System.Drawing.Size(80,24)
         $okBtn.Add_Click({ Add-TrustedDevice $sMac $tbox.Text; $dlg.Close() })
@@ -666,7 +624,7 @@ $bDR.Add_Click({
         $item = New-Object System.Windows.Forms.ListViewItem
         if ($ok) { $item.Text = $DOT; $item.ForeColor = $grn }
         else { $item.Text = $DOT; $item.ForeColor = $red }
-        $item.BackColor = $card
+        $item.BackColor = $bg
         [void]$item.SubItems.Add($dIp); [void]$item.SubItems.Add($dMac); [void]$item.SubItems.Add($nm)
         [void]$lsD.Items.Add($item)
     }
@@ -675,27 +633,56 @@ $bDR.Add_Click({
     else { $lAlert.Text = 'All trusted'; $lAlert.ForeColor = $grn }
     $bDR.ForeColor = $blue
 })
-$Y += (130 + 12)
 
-# ==== FINAL SIZE + CORNERS ====
+# ==============================
+#  UPDATE WI-FI
+# ==============================
+function Update-Wifi {
+    $bWR.ForeColor = $txt
+    $w = Get-WifiInfo
+    $lblW['SSID'].Text = if ($w['SSID']) { [string]$w['SSID'] } else { 'N/A' }
+    $myCh = $w['Channel']
+    $lblW['Channel'].Text = if ($myCh) { [string]$myCh } else { '--' }
+    $sig = $w['Signal']
+    $lblW['Signal'].Text = if ($sig) { [string]$sig } else { '--' }
+    $lblW['Speed'].Text  = if ($w['Receive rate (Mbps)']) { "$($w['Receive rate (Mbps)']) Mbps" } else { '--' }
+    $lblW['Band'].Text   = if ($w['Radio type']) { [string]$w['Radio type'] } else { '--' }
+    $lblW['Security'].Text = if ($w['Authentication']) { [string]$w['Authentication'] } else { '--' }
+    if ($w['State'] -eq 'connected') { $lblWStat.Text='Connected'; $lblWStat.ForeColor=$grn } else { $lblWStat.Text='No Wi-Fi'; $lblWStat.ForeColor=$red }
+    $lblWTime.Text = (Get-Date).ToString('HH:mm')
+    $cm = Get-ChannelMap
+    foreach ($c in 1..11) {
+        $n = $cm[$c]; $lbl = $script:lblCh[$c]
+        if ($n -eq 0) { $lbl.BackColor = $grn; $lbl.ForeColor = $bg }
+        elseif ($n -le 2) { $lbl.BackColor = $org; $lbl.ForeColor = $bg }
+        else { $lbl.BackColor = $red; $lbl.ForeColor = $txt }
+        if ([string]$c -eq [string]$myCh) { $lbl.ForeColor = $txt; $lbl.Font = New-Object System.Drawing.Font('Segoe UI',7,[System.Drawing.FontStyle]::Bold) }
+        else { $lbl.Font = $fCh }
+    }
+    $bWR.ForeColor = $blue
+}
+$bWR.Add_Click({ Update-Wifi })
+
+# ==============================
+#  FINAL SIZE + CORNERS + TIMER
+# ==============================
 $form.Size = New-Object System.Drawing.Size($W,$Y)
 $form.Add_Shown({
-    [void][WinAPI]::SetWindowRgn($form.Handle,[WinAPI]::CreateRoundRectRgn(0,0,$form.Width,$form.Height,18,18),$true)
+    [void][WinAPI]::SetWindowRgn($form.Handle,[WinAPI]::CreateRoundRectRgn(0,0,($form.Width+1),($form.Height+1),14,14),$true)
     [void][WinAPI]::SetWindowRgn($btnClose.Handle,[WinAPI]::CreateRoundRectRgn(0,0,13,13,12,12),$true)
     [void][WinAPI]::SetWindowRgn($btnMin.Handle,[WinAPI]::CreateRoundRectRgn(0,0,13,13,12,12),$true)
     [void][WinAPI]::SetWindowRgn($btnExp.Handle,[WinAPI]::CreateRoundRectRgn(0,0,13,13,12,12),$true)
-    [void][WinAPI]::SetWindowRgn($bWR.Handle,[WinAPI]::CreateRoundRectRgn(0,0,27,19,8,8),$true)
-    [void][WinAPI]::SetWindowRgn($bSpRun.Handle,[WinAPI]::CreateRoundRectRgn(0,0,27,19,8,8),$true)
-    [void][WinAPI]::SetWindowRgn($bDR.Handle,[WinAPI]::CreateRoundRectRgn(0,0,51,19,8,8),$true)
+    [void][WinAPI]::SetWindowRgn($bWR.Handle,[WinAPI]::CreateRoundRectRgn(0,0,25,17,6,6),$true)
+    [void][WinAPI]::SetWindowRgn($bSpRun.Handle,[WinAPI]::CreateRoundRectRgn(0,0,25,17,6,6),$true)
+    [void][WinAPI]::SetWindowRgn($bDR.Handle,[WinAPI]::CreateRoundRectRgn(0,0,47,17,6,6),$true)
     foreach ($mb in $script:mediaBtns) {
         [void][WinAPI]::SetWindowRgn($mb.Handle,[WinAPI]::CreateRoundRectRgn(0,0,37,26,20,20),$true)
     }
-    foreach ($p in @($pW,$pS,$pM,$pSp,$pD)) {
-        [void][WinAPI]::SetWindowRgn($p.Handle,[WinAPI]::CreateRoundRectRgn(0,0,($p.Width+1),($p.Height+1),12,12),$true)
+    foreach ($cl in $script:lblCh.Values) {
+        [void][WinAPI]::SetWindowRgn($cl.Handle,[WinAPI]::CreateRoundRectRgn(0,0,($cl.Width+1),($cl.Height+1),4,4),$true)
     }
 })
 
-# ==== TIMER (mic/cam, volume sync, brightness sync, 5s) ====
 $tmr = New-Object System.Windows.Forms.Timer
 $tmr.Interval = 5000
 $tmr.Add_Tick({

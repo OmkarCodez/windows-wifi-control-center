@@ -1,0 +1,86 @@
+﻿{
+  "project": "Control Center UI",
+  "artifact_type": "low_fidelity_wireframe_handoff",
+  "canvas": { "width": 1536, "height": 1024, "orientation": "landscape", "primary_target": "desktop" },
+  "references": {
+    "primary": "assets/original-reference.png",
+    "visual_direction": "assets/generated-visual-reference.png",
+    "layout": "01-control-center-wireframe.svg"
+  },
+  "design_direction": {
+    "wireframe": "grayscale, low fidelity, clear hierarchy",
+    "target_visual_style": "dark charcoal glassmorphism with restrained green, blue, and amber accents",
+    "typography": "clean sans-serif",
+    "surface_style": "rounded panels, subtle borders, soft shadows, translucent surfaces where legible"
+  },
+  "components": [
+    {
+      "id": "main-control-center",
+      "name": "Main Control Center panel",
+      "role": "primary-dashboard",
+      "includes": ["window header", "Wi-Fi details", "channel selector", "volume/display/opacity controls", "media controls", "speed-test summary", "compact devices table"]
+    },
+    {
+      "id": "wifi-status",
+      "name": "Wi-Fi status tile",
+      "fields": { "ssid": "MyNetwork", "status": "Connected", "signal_percent": 99 },
+      "actions": ["refresh", "open details"]
+    },
+    {
+      "id": "speed-test",
+      "name": "Speed Test panel",
+      "fields": { "download_mbps": 53.8, "upload_mbps": 54.9, "ping_ms": 3.9, "jitter_ms": 1.32, "server": "SpeedTest Server" },
+      "states": ["idle", "running", "completed", "error"],
+      "actions": ["start test"]
+    },
+    {
+      "id": "system-controls",
+      "name": "System controls",
+      "fields": { "volume_percent_example": 70 },
+      "controls": ["volume slider", "Display accordion", "Opacity accordion"]
+    },
+    {
+      "id": "media-controls",
+      "name": "Media controls",
+      "controls": ["previous", "play/pause", "next", "microphone status", "camera status"]
+    },
+    {
+      "id": "connected-devices",
+      "name": "Connected devices table",
+      "columns": ["IP", "MAC", "Name"],
+      "actions": ["scan"],
+      "initial_state": "empty in the compact table; sample rows in the expanded visual concept must be clearly labelled as demo data"
+    },
+    {
+      "id": "connection-notification",
+      "name": "Connection status notification",
+      "states": ["connected", "disconnected", "connecting", "error"]
+    },
+    {
+      "id": "wifi-channels",
+      "name": "Wi-Fi channel selector",
+      "channels": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+      "selected_channel_example": 6
+    },
+    {
+      "id": "quick-status",
+      "name": "Quick status tile",
+      "fields": { "ssid": "MyNetwork", "status": "Connected", "signal_percent": 99 }
+    }
+  ],
+  "example_network_details": {
+    "ssid": "MyNetwork",
+    "channel": 6,
+    "signal_percent": 99,
+    "speed_mbps": 270,
+    "band": "802.11n",
+    "security": "WPA2-Personal"
+  },
+  "implementation_constraints": [
+    "All displayed network values are sample/reference content, not live data.",
+    "Do not claim that speed-test values are measured unless a real speed-test implementation exists.",
+    "Do not fabricate detected devices; label mock/sample rows clearly.",
+    "Do not claim microphone or camera access without real permission handling and integration.",
+    "Support keyboard navigation, accessible labels, focus states, and responsive layouts."
+  ]
+}

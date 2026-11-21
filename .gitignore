@@ -1,2 +1,5 @@
 *.exe
+*.png
+*.ico
 trusted-devices.json
+Error*.png

@@ -1,0 +1,207 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024">
+<title>Control Center — Low-fidelity wireframe</title>
+<desc>Editable grayscale wireframe based on the supplied Control Center reference, containing the main dashboard and eight supporting widgets.</desc>
+<rect width="1536" height="1024" fill="#f1f3f5"/>
+
+<text x="40" y="28" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#56606d" text-anchor="start">CONTROL CENTER · LOW-FIDELITY WIREFRAME</text>
+<text x="1496" y="28" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#68717d" text-anchor="end">DESKTOP CANVAS  /  1536 × 1024</text>
+<rect x="40" y="48" width="500" height="914" rx="18" fill="#fafbfc" stroke="#7f8995" stroke-width="2"/>
+<circle cx="66" cy="78" r="7" fill="#cfd4da" stroke="#7f8995"/>
+<circle cx="88" cy="78" r="7" fill="#cfd4da" stroke="#7f8995"/>
+<circle cx="110" cy="78" r="7" fill="#cfd4da" stroke="#7f8995"/>
+<text x="145" y="85" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#252a31" text-anchor="start">Control Center</text>
+<rect x="474" y="62" width="42" height="30" rx="8" fill="#ffffff" stroke="#8c949f" stroke-width="1.5"/>
+<text x="495.0" y="83.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">↻</text>
+<line x1="40" y1="105" x2="540" y2="105" stroke="#c8cdd4" stroke-width="1"/>
+<rect x="60" y="122" width="460" height="270" rx="16" fill="#ffffff" stroke="#aeb4bd" stroke-width="2"/>
+<text x="82" y="156" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#252a31" text-anchor="start">Wi-Fi</text>
+<rect x="445" y="136" width="48" height="30" rx="8" fill="#ffffff" stroke="#8c949f" stroke-width="1.5"/>
+<text x="469.0" y="157.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">↻</text>
+<path d="M84 184 Q108 160 132 184 M92 194 Q108 178 124 194 M101 204 Q108 197 115 204" fill="none" stroke="#616b77" stroke-width="5" stroke-linecap="round"/>
+<text x="150" y="183" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700" fill="#68717d" text-anchor="start">CONNECTED</text>
+<text x="150" y="211" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="600" fill="#252a31" text-anchor="start">SSID  MyNetwork</text>
+<text x="150" y="239" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="400" fill="#252a31" text-anchor="start">Channel  6</text>
+<text x="150" y="264" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="400" fill="#252a31" text-anchor="start">Signal  99%</text>
+<text x="150" y="289" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="400" fill="#252a31" text-anchor="start">Speed  270 Mbps</text>
+<text x="150" y="314" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="400" fill="#252a31" text-anchor="start">Band  802.11n</text>
+<text x="150" y="339" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="400" fill="#252a31" text-anchor="start">Security  WPA2-Personal</text>
+<text x="480" y="183" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="500" fill="#68717d" text-anchor="end">18:54:47</text>
+<rect x="78" y="350" width="34" height="28" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="95.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">1</text>
+<rect x="117" y="350" width="34" height="28" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="134.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">2</text>
+<rect x="156" y="350" width="34" height="28" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="173.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">3</text>
+<rect x="195" y="350" width="34" height="28" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="212.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">4</text>
+<rect x="234" y="350" width="34" height="28" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="251.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">5</text>
+<rect x="273" y="350" width="34" height="28" rx="6" fill="#e5e7eb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="290.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">6</text>
+<rect x="312" y="350" width="34" height="28" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="329.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">7</text>
+<rect x="351" y="350" width="34" height="28" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="368.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">8</text>
+<rect x="390" y="350" width="34" height="28" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="407.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">9</text>
+<rect x="429" y="350" width="34" height="28" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="446.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">10</text>
+<rect x="468" y="350" width="34" height="28" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="485.0" y="370.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">11</text>
+<rect x="60" y="408" width="460" height="112" rx="16" fill="#ffffff" stroke="#aeb4bd" stroke-width="2"/>
+<text x="82" y="442" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#252a31" text-anchor="start">Controls</text>
+<text x="82" y="468" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="600" fill="#252a31" text-anchor="start">Volume</text>
+<line x1="180" y1="462" x2="472" y2="462" stroke="#c5cbd3" stroke-width="7"/>
+<line x1="180" y1="462" x2="384.4" y2="462" stroke="#858e99" stroke-width="7"/>
+<circle cx="384.4" cy="462" r="10" fill="#ffffff" stroke="#727b87" stroke-width="2"/>
+<text x="82" y="501" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="start">Display / Opacity</text>
+<text x="492" y="501" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500" fill="#68717d" text-anchor="end">⌄</text>
+<rect x="60" y="536" width="460" height="72" rx="16" fill="#ffffff" stroke="#aeb4bd" stroke-width="2"/>
+<rect x="82" y="556" width="62" height="34" rx="8" fill="#ffffff" stroke="#8c949f" stroke-width="1.5"/>
+<text x="113.0" y="579.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">|◀</text>
+<rect x="154" y="556" width="62" height="34" rx="8" fill="#dfe3e8" stroke="#8c949f" stroke-width="1.5"/>
+<text x="185.0" y="579.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">▶ / II</text>
+<rect x="226" y="556" width="62" height="34" rx="8" fill="#ffffff" stroke="#8c949f" stroke-width="1.5"/>
+<text x="257.0" y="579.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">▶|</text>
+<text x="324" y="579" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="start">MIC  ●</text>
+<text x="424" y="579" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="start">CAM  ●</text>
+<rect x="60" y="624" width="460" height="192" rx="16" fill="#ffffff" stroke="#aeb4bd" stroke-width="2"/>
+<text x="82" y="658" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#252a31" text-anchor="start">Speed Test</text>
+<rect x="448" y="637" width="48" height="30" rx="8" fill="#dfe3e8" stroke="#8c949f" stroke-width="1.5"/>
+<text x="472.0" y="658.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">▶</text>
+<text x="82" y="685" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="start">Download</text>
+<text x="230" y="685" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700" fill="#252a31" text-anchor="start">53.8 Mbps</text>
+<text x="82" y="713" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="start">Upload</text>
+<text x="230" y="713" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700" fill="#252a31" text-anchor="start">54.9 Mbps</text>
+<text x="82" y="741" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="start">Ping</text>
+<text x="230" y="741" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700" fill="#252a31" text-anchor="start">3.9 ms</text>
+<text x="82" y="769" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="start">Jitter</text>
+<text x="230" y="769" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700" fill="#252a31" text-anchor="start">1.32 ms</text>
+<text x="82" y="797" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="start">Server</text>
+<text x="230" y="797" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="600" fill="#252a31" text-anchor="start">SpeedTest Server</text>
+<rect x="60" y="832" width="460" height="110" rx="16" fill="#ffffff" stroke="#aeb4bd" stroke-width="2"/>
+<text x="82" y="866" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#252a31" text-anchor="start">Devices</text>
+<rect x="444" y="844" width="50" height="28" rx="8" fill="#ffffff" stroke="#8c949f" stroke-width="1.5"/>
+<text x="469.0" y="864.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">↻</text>
+<rect x="78" y="882" width="424" height="28" rx="4" fill="#e9ecf0" stroke="#c2c8d0" stroke-width="1"/>
+<line x1="219" y1="882" x2="219" y2="910" stroke="#c2c8d0" stroke-width="1"/>
+<line x1="360" y1="882" x2="360" y2="910" stroke="#c2c8d0" stroke-width="1"/>
+<text x="148" y="902" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="600" fill="#3f4853" text-anchor="middle">IP</text>
+<text x="289" y="902" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="600" fill="#3f4853" text-anchor="middle">MAC</text>
+<text x="431" y="902" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="600" fill="#3f4853" text-anchor="middle">Name</text>
+<rect x="590" y="48" width="438" height="150" rx="16" fill="#ffffff" stroke="#aeb4bd" stroke-width="2"/>
+<text x="612" y="82" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#252a31" text-anchor="start">Wi-Fi status</text>
+<rect x="614" y="80" width="86" height="86" rx="18" fill="#eef0f3" stroke="#c4cad2" stroke-width="1"/>
+<path d="M632 117 Q657 93 682 117 M640 129 Q657 113 674 129 M650 140 Q657 133 664 140" fill="none" stroke="#59636f" stroke-width="6" stroke-linecap="round"/>
+<text x="728" y="113" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#252a31" text-anchor="start">MyNetwork</text>
+<text x="728" y="145" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500" fill="#68717d" text-anchor="start">Connected · 99% signal</text>
+<text x="990" y="115" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="400" fill="#68717d" text-anchor="middle">›</text>
+<rect x="590" y="220" width="438" height="300" rx="16" fill="#ffffff" stroke="#aeb4bd" stroke-width="2"/>
+<text x="612" y="254" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#252a31" text-anchor="start">Speed Test</text>
+<rect x="950" y="238" width="56" height="38" rx="8" fill="#dfe3e8" stroke="#8c949f" stroke-width="1.5"/>
+<text x="978.0" y="263.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">▶</text>
+<rect x="620" y="283" width="178" height="112" rx="10" fill="#f4f5f7" stroke="#c5cbd3" stroke-width="1"/>
+<rect x="818" y="283" width="178" height="112" rx="10" fill="#f4f5f7" stroke="#c5cbd3" stroke-width="1"/>
+<text x="709" y="315" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700" fill="#68717d" text-anchor="middle">DOWNLOAD</text>
+<text x="709" y="355" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#252a31" text-anchor="middle">53.8</text>
+<text x="709" y="379" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="middle">Mbps</text>
+<text x="907" y="315" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700" fill="#68717d" text-anchor="middle">UPLOAD</text>
+<text x="907" y="355" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#252a31" text-anchor="middle">54.9</text>
+<text x="907" y="379" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="middle">Mbps</text>
+<line x1="620" y1="416" x2="998" y2="416" stroke="#d3d7dd" stroke-width="1"/>
+<text x="638" y="455" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="start">Ping</text>
+<text x="700" y="455" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#252a31" text-anchor="start">3.9 ms</text>
+<text x="822" y="455" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="start">Jitter</text>
+<text x="895" y="455" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#252a31" text-anchor="start">1.32 ms</text>
+<text x="638" y="490" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="start">Server</text>
+<text x="700" y="490" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="600" fill="#252a31" text-anchor="start">SpeedTest Server</text>
+<rect x="1060" y="48" width="436" height="300" rx="16" fill="#ffffff" stroke="#aeb4bd" stroke-width="2"/>
+<text x="1082" y="82" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#252a31" text-anchor="start">System controls</text>
+<text x="1090" y="112" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600" fill="#252a31" text-anchor="start">Volume</text>
+<line x1="1090" y1="151" x2="1420" y2="151" stroke="#c5cbd3" stroke-width="7"/>
+<line x1="1090" y1="151" x2="1321.0" y2="151" stroke="#858e99" stroke-width="7"/>
+<circle cx="1321.0" cy="151" r="10" fill="#ffffff" stroke="#727b87" stroke-width="2"/>
+<text x="1445" y="157" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500" fill="#68717d" text-anchor="end">70%</text>
+<line x1="1088" y1="190" x2="1468" y2="190" stroke="#d3d7dd" stroke-width="1"/>
+<text x="1090" y="242" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600" fill="#252a31" text-anchor="start">Display</text>
+<text x="1450" y="242" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500" fill="#68717d" text-anchor="end">⌄</text>
+<line x1="1088" y1="270" x2="1468" y2="270" stroke="#d3d7dd" stroke-width="1"/>
+<text x="1090" y="318" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="600" fill="#252a31" text-anchor="start">Opacity</text>
+<text x="1450" y="318" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500" fill="#68717d" text-anchor="end">⌄</text>
+<rect x="1060" y="372" width="436" height="148" rx="16" fill="#ffffff" stroke="#aeb4bd" stroke-width="2"/>
+<text x="1082" y="406" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#252a31" text-anchor="start">Media player</text>
+<rect x="1090" y="420" width="62" height="44" rx="8" fill="#ffffff" stroke="#8c949f" stroke-width="1.5"/>
+<text x="1121.0" y="448.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">|◀</text>
+<rect x="1164" y="412" width="68" height="60" rx="8" fill="#dfe3e8" stroke="#8c949f" stroke-width="1.5"/>
+<text x="1198.0" y="448.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">▶ / II</text>
+<rect x="1244" y="420" width="62" height="44" rx="8" fill="#ffffff" stroke="#8c949f" stroke-width="1.5"/>
+<text x="1275.0" y="448.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">▶|</text>
+<line x1="1322" y1="405" x2="1322" y2="486" stroke="#d3d7dd" stroke-width="1"/>
+<text x="1350" y="438" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="600" fill="#252a31" text-anchor="start">MIC  ●</text>
+<text x="1350" y="468" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="600" fill="#252a31" text-anchor="start">CAM  ●</text>
+<rect x="590" y="544" width="600" height="262" rx="16" fill="#ffffff" stroke="#aeb4bd" stroke-width="2"/>
+<text x="612" y="578" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#252a31" text-anchor="start">Connected devices</text>
+<rect x="1040" y="558" width="126" height="34" rx="8" fill="#ffffff" stroke="#8c949f" stroke-width="1.5"/>
+<text x="1103.0" y="581.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">↻  Scan</text>
+<rect x="616" y="608" width="548" height="42" rx="6" fill="#e9ecf0" stroke="#c2c8d0" stroke-width="1"/>
+<line x1="770" y1="608" x2="770" y2="650" stroke="#c2c8d0" stroke-width="1"/>
+<line x1="966" y1="608" x2="966" y2="650" stroke="#c2c8d0" stroke-width="1"/>
+<text x="692" y="635" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#59636f" text-anchor="middle">IP ADDRESS</text>
+<text x="868" y="635" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#59636f" text-anchor="middle">MAC ADDRESS</text>
+<text x="1065" y="635" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#59636f" text-anchor="middle">NAME</text>
+<circle cx="632" cy="683" r="6" fill="#9aa3ae"/>
+<text x="650" y="688" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="400" fill="#252a31" text-anchor="start">192.168.1.10</text>
+<text x="790" y="688" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="400" fill="#252a31" text-anchor="start">AA:BB:CC:DD:01</text>
+<text x="1000" y="688" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="400" fill="#252a31" text-anchor="start">Laptop</text>
+<line x1="616" y1="702" x2="1164" y2="702" stroke="#e1e4e8" stroke-width="1"/>
+<circle cx="632" cy="721" r="6" fill="#9aa3ae"/>
+<text x="650" y="726" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="400" fill="#252a31" text-anchor="start">192.168.1.11</text>
+<text x="790" y="726" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="400" fill="#252a31" text-anchor="start">AA:BB:CC:DD:02</text>
+<text x="1000" y="726" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="400" fill="#252a31" text-anchor="start">Phone</text>
+<line x1="616" y1="740" x2="1164" y2="740" stroke="#e1e4e8" stroke-width="1"/>
+<circle cx="632" cy="759" r="6" fill="#9aa3ae"/>
+<text x="650" y="764" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="400" fill="#252a31" text-anchor="start">192.168.1.12</text>
+<text x="790" y="764" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="400" fill="#252a31" text-anchor="start">AA:BB:CC:DD:03</text>
+<text x="1000" y="764" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="400" fill="#252a31" text-anchor="start">Tablet</text>
+<rect x="1220" y="544" width="276" height="160" rx="16" fill="#ffffff" stroke="#aeb4bd" stroke-width="2"/>
+<text x="1242" y="578" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#252a31" text-anchor="start">Connection status</text>
+<circle cx="1266" cy="623" r="28" fill="#e9edf1" stroke="#8b949f" stroke-width="2"/>
+<text x="1266" y="631" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#59636f" text-anchor="middle">✓</text>
+<text x="1310" y="615" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#252a31" text-anchor="start">Connected</text>
+<text x="1310" y="644" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="start">Wi-Fi is working</text>
+<text x="1310" y="664" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="start">properly</text>
+<rect x="590" y="830" width="600" height="132" rx="16" fill="#ffffff" stroke="#aeb4bd" stroke-width="2"/>
+<text x="612" y="864" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#252a31" text-anchor="start">Wi-Fi channels</text>
+<text x="616" y="882" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="#68717d" text-anchor="start">Select channel</text>
+<rect x="616" y="898" width="40" height="34" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="636.0" y="921.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">1</text>
+<rect x="665" y="898" width="40" height="34" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="685.0" y="921.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">2</text>
+<rect x="714" y="898" width="40" height="34" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="734.0" y="921.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">3</text>
+<rect x="763" y="898" width="40" height="34" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="783.0" y="921.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">4</text>
+<rect x="812" y="898" width="40" height="34" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="832.0" y="921.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">5</text>
+<rect x="861" y="898" width="40" height="34" rx="6" fill="#e5e7eb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="881.0" y="921.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">6</text>
+<rect x="910" y="898" width="40" height="34" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="930.0" y="921.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">7</text>
+<rect x="959" y="898" width="40" height="34" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="979.0" y="921.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">8</text>
+<rect x="1008" y="898" width="40" height="34" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="1028.0" y="921.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">9</text>
+<rect x="1057" y="898" width="40" height="34" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="1077.0" y="921.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">10</text>
+<rect x="1106" y="898" width="40" height="34" rx="6" fill="#f8f9fb" stroke="#aeb4bd" stroke-width="1"/>
+<text x="1126.0" y="921.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#252a31" text-anchor="middle">11</text>
+<rect x="1220" y="738" width="276" height="224" rx="16" fill="#ffffff" stroke="#aeb4bd" stroke-width="2"/>
+<text x="1242" y="772" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#252a31" text-anchor="start">Quick status</text>
+<path d="M1248 806 Q1274 780 1300 806 M1257 817 Q1274 800 1291 817 M1267 828 Q1274 821 1281 828" fill="none" stroke="#59636f" stroke-width="5" stroke-linecap="round"/>
+<text x="1316" y="807" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#252a31" text-anchor="start">MyNetwork</text>
+<text x="1316" y="837" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500" fill="#68717d" text-anchor="start">Connected</text>
+<text x="1248" y="890" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="500" fill="#68717d" text-anchor="start">Signal strength</text>
+<rect x="1248" y="905" width="216" height="12" rx="6" fill="#e5e8ec" stroke="#c2c8d0" stroke-width="1"/>
+<rect x="1248" y="905" width="214" height="12" rx="6" fill="#aeb6c0" stroke="#aeb6c0" stroke-width="1"/>
+<text x="1466" y="943" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="600" fill="#68717d" text-anchor="end">99%</text>
+</svg>

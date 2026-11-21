@@ -1,0 +1,2 @@
+Figma import: use File > Place image or drag 01-control-center-wireframe.svg onto a Figma canvas. Ungroup imported vectors as needed to edit individual shapes and text.
+Claude handoff: provide claude-build-prompt.md, component-spec.json, assets/original-reference.png, assets/generated-visual-reference.png, and the SVG.
